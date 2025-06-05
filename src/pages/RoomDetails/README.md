@@ -1,0 +1,1 @@
+# RoomDetails - placeholder
