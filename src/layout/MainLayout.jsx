@@ -1,19 +1,15 @@
 import React from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import BannerSection from '../components/BannerSection';
-import FeaturedRooms from '../components/FeaturedRooms';
-import LocationSection from '../components/LocationSection';
+import { Outlet } from 'react-router-dom';
 
 const MainLayout = () => {
   return (
     <>
-      <div className="relative bg-fixed bg-center bg-cover" style={{ backgroundImage: "url('/2579.jpg')" }}>
+     <div className=" bg-fixed bg-center bg-cover" style={{ backgroundImage: "url('/2579.jpg')" }}>
         <Navbar />
-        <BannerSection />
-      </div>
-      <FeaturedRooms/>
-      <LocationSection/>
+        <Outlet></Outlet>
+        </div>
       <Footer />
     </>
   );

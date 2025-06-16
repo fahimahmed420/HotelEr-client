@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { NavLink } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { Menu, X, Sun, Moon } from 'lucide-react';
 
 const Navbar = () => {
@@ -23,15 +23,14 @@ const Navbar = () => {
 
   return (
     <nav
-      className={`sticky top-0 z-50 transition-all duration-300 mx-auto max-w-5xl rounded-xl px-6 py-4 shadow-md backdrop-blur-md ${
-        darkMode
+      className={`sticky top-0 z-50 transition-all duration-300 mx-auto max-w-5xl rounded-xl px-6 py-4 shadow-md backdrop-blur-md ${darkMode
           ? scrolled
             ? 'bg-[#1d130c]/90'
             : 'bg-[#2e1c10]/90'
           : scrolled
-          ? 'bg-white/90'
-          : 'bg-[#f8f2ee]/90'
-      }`}
+            ? 'bg-white/90'
+            : 'bg-[#f8f2ee]/90'
+        }`}
     >
       <div className="flex justify-between items-center">
         <h1 className="text-xl font-bold tracking-wide">Hotel Booking</h1>
@@ -43,8 +42,7 @@ const Navbar = () => {
                 key={path}
                 to={path}
                 className={({ isActive }) =>
-                  `text-base font-medium hover:text-[#ffa94d] ${
-                    isActive ? 'text-[#ffa94d]' : ''
+                  `text-base font-medium hover:text-[#ffa94d] ${isActive ? 'text-[#ffa94d]' : ''
                   }`
                 }
               >
@@ -61,15 +59,16 @@ const Navbar = () => {
           >
             {darkMode ? <Sun size={20} /> : <Moon size={20} />}
           </button>
+         <Link to={"/login"}>
           <button
-            className={`hidden md:block px-4 py-1.5 rounded-md transition border ${
-              darkMode
+            className={`hidden md:block px-4 py-1.5 rounded-md transition border ${darkMode
                 ? 'bg-[#a35c27] border-[#c68447] text-[#fff3e0] hover:bg-[#c68447]'
                 : 'bg-orange-500 text-white border-orange-600 hover:bg-orange-600'
-            }`}
+              }`}
           >
             Login
           </button>
+         </Link>
           <button
             className="md:hidden"
             onClick={() => setMobileOpen(!mobileOpen)}
@@ -92,8 +91,7 @@ const Navbar = () => {
                 to={path}
                 onClick={() => setMobileOpen(false)}
                 className={({ isActive }) =>
-                  `text-base font-medium hover:text-[#ffa94d] ${
-                    isActive ? 'text-[#ffa94d]' : ''
+                  `text-base font-medium hover:text-[#ffa94d] ${isActive ? 'text-[#ffa94d]' : ''
                   }`
                 }
               >
@@ -101,15 +99,16 @@ const Navbar = () => {
               </NavLink>
             );
           })}
-          <button
-            className={`w-fit px-4 py-1.5 rounded-md transition border ${
-              darkMode
-                ? 'bg-[#a35c27] border-[#c68447] text-[#fff3e0] hover:bg-[#c68447]'
-                : 'bg-orange-500 text-white border-orange-600 hover:bg-orange-600'
-            }`}
-          >
-            Login
-          </button>
+          <Link to={"/login"}>
+            <button
+              className={`w-fit px-4 py-1.5 rounded-md transition border ${darkMode
+                  ? 'bg-[#a35c27] border-[#c68447] text-[#fff3e0] hover:bg-[#c68447]'
+                  : 'bg-orange-500 text-white border-orange-600 hover:bg-orange-600'
+                }`}
+            >
+              Login
+            </button>
+          </Link>
         </div>
       )}
     </nav>
