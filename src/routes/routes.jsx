@@ -7,7 +7,7 @@ import Login from "../pages/Login/Login";
 import Register from "../pages/Register/Register";
 import MyBookings from "../pages/MyBookings/MyBookings";
 import NotFound from "../pages/NotFound/NotFound";
-import PrivateRoute from "../layout/PrivateRoute";
+import PrivateRoute from "./PrivateRoute";
 
 const router = createBrowserRouter([
   {
