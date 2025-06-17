@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-// eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 import { FcGoogle } from "react-icons/fc";
 import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import "../styles/LoginPage.css";
+import { AuthContext } from "../context/AuthContext";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ChecklistItem = ({ valid, label }) => (
   <div className="flex items-center gap-2">
@@ -19,6 +21,7 @@ const ChecklistItem = ({ valid, label }) => (
 );
 
 export default function LoginPage() {
+  const { createUser, signInWithGoogle } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [name, setName] = useState("");
@@ -31,6 +34,7 @@ export default function LoginPage() {
   const [passwordTouched, setPasswordTouched] = useState(false);
 
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const passwordRegex = {
     length: /.{8,}/,
@@ -47,14 +51,44 @@ export default function LoginPage() {
     passwordRegex.lowercase.test(password) &&
     passwordRegex.digit.test(password);
 
-  const handleSubmit = (e) => {
+
+    // email,pass sign up
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setNameTouched(true);
     setEmailTouched(true);
     setPasswordTouched(true);
 
-    if (isNameValid && isEmailValid && isPasswordValid) {
-      console.log("Logging in with:", { name, email, password });
+    if (!isNameValid || !isEmailValid || !isPasswordValid) return;
+
+    try {
+      setLoading(true);
+      const res = await createUser(email, password, name);
+      console.log("User registered", res.user);
+      toast.success("🎉 Registration successful!");
+      setName("");
+      setEmail("");
+      setPassword("");
+      setTimeout(() => navigate("/login"), 3000); 
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // google sign in
+  const handleGoogleSignIn = async () => {
+    try {
+      setLoading(true);
+      const res = await signInWithGoogle();
+      console.log("Google Sign-in", res.user);
+      toast.success("🎉 Google sign-in successful!");
+      setTimeout(() => navigate("/"), 3000);
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -100,6 +134,7 @@ export default function LoginPage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   onBlur={() => setNameTouched(true)}
+                  disabled={loading}
                   className={`w-full px-4 py-3 rounded-lg border ${
                     !isNameValid && nameTouched
                       ? "border-red-400"
@@ -125,6 +160,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   onBlur={() => setEmailTouched(true)}
+                  disabled={loading}
                   className={`w-full px-4 py-3 rounded-lg border ${
                     !isEmailValid && emailTouched
                       ? "border-red-400"
@@ -150,6 +186,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   onBlur={() => setPasswordTouched(true)}
+                  disabled={loading}
                   className={`w-full px-4 py-3 rounded-lg border ${
                     !isPasswordValid && passwordTouched
                       ? "border-red-400"
@@ -164,14 +201,13 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword((prev) => !prev)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sky-700 hover:text-sky-900"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sky-700 hover:text-sky-900 cursor-pointer"
                   tabIndex={-1}
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
                 </button>
 
-                {/* Checklist */}
                 <div className="text-sm mt-2 space-y-1">
                   {(passwordTouched || password.length > 0) && (
                     <>
@@ -205,9 +241,10 @@ export default function LoginPage() {
               {/* Submit */}
               <button
                 type="submit"
-                className="w-full py-3 rounded-lg border border-sky-500 text-sky-700 font-semibold hover:bg-sky-100 transition backdrop-blur-md bg-white/20"
+                className="w-full py-3 rounded-lg border border-sky-500 text-sky-700 font-semibold hover:bg-sky-200 transition backdrop-blur-md bg-white/20 cursor-pointer disabled:opacity-60"
+                disabled={loading}
               >
-                Register
+                {loading ? "Registering..." : "Register"}
               </button>
             </form>
 
@@ -216,7 +253,12 @@ export default function LoginPage() {
             <div className="flex justify-center mt-2 gap-4">
               <div className="relative inline-block group w-12 h-12">
                 <div className="absolute inset-0 rounded-full p-[2px] bg-[conic-gradient(at_top_left,_#3b82f6,_#60a5fa,_#3b82f6)] animate-spin-slow blur-sm opacity-80 group-hover:opacity-100"></div>
-                <button className="relative z-10 w-full h-full flex items-center justify-center rounded-full border border-gray-300 backdrop-blur-md bg-white/30 hover:bg-white/40 transition">
+                <button
+                  onClick={handleGoogleSignIn}
+                  className="relative z-10 w-full h-full flex items-center justify-center rounded-full border border-gray-300 backdrop-blur-md bg-white/30 hover:bg-white/40 transition cursor-pointer"
+                  aria-label="Sign in with Google"
+                  disabled={loading}
+                >
                   <FcGoogle className="text-xl" />
                 </button>
               </div>
@@ -227,6 +269,7 @@ export default function LoginPage() {
           <div className="hidden md:block w-1/2" />
         </div>
       </motion.div>
+      <ToastContainer position="top-center" autoClose={3000} />
     </div>
   );
 }
