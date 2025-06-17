@@ -4,13 +4,15 @@ import ErrorPage from "../pages/ErrorPage";
 import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
 import Home from "../pages/Home";
+import ReserveTable from "../pages/ReserveTable";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <MainLayout />,
     children: [
-      { path: "/", element: <Home/> }
+      { path: "/", element: <Home/> },
+      { path: "/Reservation", element: <ReserveTable/> }
     ],
   },
   { path: "/login", element: <LoginPage/> },

@@ -23,17 +23,19 @@ const Navbar = () => {
 
   return (
     <nav
-      className={`sticky top-0 z-50 transition-all duration-300 mx-auto max-w-5xl rounded-xl px-6 py-4 shadow-md backdrop-blur-md ${darkMode
+      className={`fixed top-0 left-0 right-0 z-50 w-full transition-all duration-300 backdrop-blur-md ${darkMode
           ? scrolled
-            ? 'bg-[#1d130c]/90'
-            : 'bg-[#2e1c10]/90'
+            ? 'bg-[#1d130c]/90 shadow-md py-2'
+            : 'bg-transparent py-4'
           : scrolled
-            ? 'bg-white/90'
-            : 'bg-[#f8f2ee]/90'
+            ? 'bg-white/90 shadow-md py-2'
+            : 'bg-transparent py-4'
         }`}
     >
-      <div className="flex justify-between items-center">
-        <h1 className="text-xl font-bold tracking-wide">Hotel Booking</h1>
+      <div className="mx-auto max-w-5xl px-6 flex justify-between items-center transition-all duration-300">
+        <h1 className={`font-bold tracking-wide transition-all duration-300 ${scrolled ? 'text-lg' : 'text-xl'}`}>
+          Hotel Booking
+        </h1>
         <div className="hidden md:flex items-center space-x-6">
           {['/', '/rooms', '/bookings', '/reviews'].map((path, idx) => {
             const labels = ['Home', 'Rooms', 'My Bookings', 'Reviews'];
@@ -42,8 +44,7 @@ const Navbar = () => {
                 key={path}
                 to={path}
                 className={({ isActive }) =>
-                  `text-base font-medium hover:text-[#ffa94d] ${isActive ? 'text-[#ffa94d]' : ''
-                  }`
+                  `text-base font-medium hover:text-[#ffa94d] ${isActive ? 'text-[#ffa94d]' : ''}`
                 }
               >
                 {labels[idx]}
@@ -59,16 +60,16 @@ const Navbar = () => {
           >
             {darkMode ? <Sun size={20} /> : <Moon size={20} />}
           </button>
-         <Link to={"/login"}>
-          <button
-            className={`hidden md:block px-4 py-1.5 rounded-md transition border ${darkMode
-                ? 'bg-[#a35c27] border-[#c68447] text-[#fff3e0] hover:bg-[#c68447]'
-                : 'bg-orange-500 text-white border-orange-600 hover:bg-orange-600'
-              }`}
-          >
-            Login
-          </button>
-         </Link>
+          <Link to={"/login"}>
+            <button
+              className={`hidden md:block px-4 py-1.5 rounded-md transition border ${darkMode
+                  ? 'bg-[#a35c27] border-[#c68447] text-[#fff3e0] hover:bg-[#c68447]'
+                  : 'bg-orange-500 text-white border-orange-600 hover:bg-orange-600'
+                }`}
+            >
+              Login
+            </button>
+          </Link>
           <button
             className="md:hidden"
             onClick={() => setMobileOpen(!mobileOpen)}
@@ -82,7 +83,7 @@ const Navbar = () => {
         </div>
       </div>
       {mobileOpen && (
-        <div className="mt-4 flex flex-col space-y-3 md:hidden">
+        <div className="mt-4 flex flex-col space-y-3 md:hidden px-6">
           {['/', '/rooms', '/bookings', '/reviews'].map((path, idx) => {
             const labels = ['Home', 'Rooms', 'My Bookings', 'Reviews'];
             return (
@@ -91,8 +92,7 @@ const Navbar = () => {
                 to={path}
                 onClick={() => setMobileOpen(false)}
                 className={({ isActive }) =>
-                  `text-base font-medium hover:text-[#ffa94d] ${isActive ? 'text-[#ffa94d]' : ''
-                  }`
+                  `text-base font-medium hover:text-[#ffa94d] ${isActive ? 'text-[#ffa94d]' : ''}`
                 }
               >
                 {labels[idx]}

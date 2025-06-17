@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+// eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 import { FcGoogle } from "react-icons/fc";
 import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
