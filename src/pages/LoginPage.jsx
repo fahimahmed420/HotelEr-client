@@ -18,9 +18,9 @@ const ChecklistItem = ({ valid, label }) => (
   </div>
 );
 
-// Reusable error handler for auth errors
+// auth errors
 const showAuthErrorToast = (error) => {
-  console.error("Auth error:", error); // For debugging
+  console.error("Auth error:", error);
 
   const errorCode = error?.code || "";
 
@@ -38,7 +38,6 @@ const showAuthErrorToast = (error) => {
       toast.error("Too many failed attempts. Please wait and try again.");
       break;
     case "auth/invalid-credential":
-      // Shown when Firebase hides specific error details
       toast.error("Incorrect email or password.");
       break;
     case "auth/network-request-failed":
