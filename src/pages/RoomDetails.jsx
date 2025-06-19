@@ -8,6 +8,9 @@ import "react-toastify/dist/ReactToastify.css";
 import { motion, AnimatePresence } from "framer-motion";
 import Rating from "react-rating-stars-component";
 import { AuthContext } from "../context/AuthContext";
+import '@fortawesome/fontawesome-free/css/all.min.css';
+
+
 
 Modal.setAppElement("#root");
 
@@ -30,10 +33,13 @@ function RoomDetails() {
   const [bookingSummaryIsOpen, setBookingSummaryIsOpen] = useState(false);
   const [reviews, setReviews] = useState([]);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
-  const [rating, setRating] = useState(0);
+  const [rating, setRating] = useState(1);
   const [comment, setComment] = useState("");
 
+
+  const [hasReviewed, setHasReviewed] = useState(false);
   const [hasBooked, setHasBooked] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (user?.email) {
@@ -50,12 +56,24 @@ function RoomDetails() {
       .then(res => res.json())
       .then(setRoom)
       .catch(err => console.error("Failed to fetch room:", err));
-    fetch(`http://localhost:5000/api/reviews/${id}`)
+  }, [id]);
+
+  useEffect(() => {
+    if (user?.email) {
+      fetch(`http://localhost:5000/api/reviews/check?roomId=${id}&email=${user.email}`)
+        .then(res => res.json())
+        .then(data => setHasReviewed(data.hasReviewed))
+        .catch(console.error);
+    }
+  }, [id, user]);
+  useEffect(() => {
+    fetch(`http://localhost:5000/api/reviews?roomId=${id}`)
       .then(res => res.json())
       .then(setReviews)
-      .catch(err => console.error("Failed to fetch reviews:", err));
-
+      .catch(console.error);
   }, [id]);
+
+
 
   const handleDateChange = (dates) => {
     const [start, end] = dates;
@@ -72,16 +90,21 @@ function RoomDetails() {
   };
 
   const handleReserve = () => {
-    if (!user) {
-      toast.error("Please log in to make a reservation.");
-      return;
-    }
     if (!error && selectedRange[0] && selectedRange[1]) {
       setBookingSummaryIsOpen(true);
     }
   };
 
   const confirmBooking = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
+    if (!user?.email) {
+      toast.error("You must be logged in to book a room.");
+      setIsSubmitting(false);
+      return;
+    }
+
     const booking = {
       roomId: id,
       email: user?.email,
@@ -91,23 +114,30 @@ function RoomDetails() {
       guests,
       checkInTime,
       total: grandTotal.toFixed(2),
-      createdAt: new Date()
+      createdAt: new Date().toISOString(),
     };
 
-    const res = await fetch("http://localhost:5000/api/bookings", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(booking),
-    });
+    try {
+      const res = await fetch("http://localhost:5000/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(booking),
+      });
 
-    if (res.ok) {
-      toast.success("Booking confirmed!");
-    } else {
-      toast.error("Failed to book room.");
+      if (res.ok) {
+        toast.success("Booking confirmed!");
+      } else {
+        toast.error("Failed to book room.");
+      }
+    } catch (err) {
+      console.error("Booking error:", err);
+      toast.error("Something went wrong.");
     }
 
     setBookingSummaryIsOpen(false);
+    setIsSubmitting(false);
   };
+
 
   const getNightsCount = () => {
     const diff = (checkOut - checkIn) / (1000 * 60 * 60 * 24);
@@ -126,8 +156,8 @@ function RoomDetails() {
   }
 
   return (
-    <div className="min-h-screen bg-cover bg-center text-white py-20" style={{ backgroundImage: `url('${room.gallery?.[0] || "/fallback.jpg"}')` }}>
-      <div className="min-h-screen grid grid-cols-1 md:grid-cols-3 gap-4 p-6 bg-black/60">
+    <div className="min-h-screen bg-cover bg-center text-white " style={{ backgroundImage: `url('${room.gallery?.[0]}')` }}>
+      <div className="min-h-screen grid grid-cols-1 md:grid-cols-3 gap-4 p-6 bg-black/60 py-20">
         {/* Room Info */}
         <div className="md:col-span-2 grid md:grid-cols-2 gap-4 rounded-2xl p-4 bg-white/10 backdrop-blur text-white">
           <div className="space-y-2">
@@ -183,7 +213,7 @@ function RoomDetails() {
           <button
             className="w-full py-2 rounded-xl bg-green-600 hover:bg-green-500"
             onClick={handleReserve}
-            disabled={!user || !!error}
+            disabled={!!error}
           >
             Reserve
           </button>
@@ -212,7 +242,15 @@ function RoomDetails() {
             <div className="space-y-3">
               {reviews.map((r, idx) => (
                 <div key={idx} className="bg-white/20 p-3 rounded-lg">
-                  <p className="font-semibold">{r.username}</p>
+                  <div className="flex items-center gap-2 mb-1">
+                    <img
+                      src={r.avatar || `https://i.pravatar.cc/150?u=${r.email}`}
+                      alt="avatar"
+                      className="w-8 h-8 rounded-full"
+                    />
+                    <p className="font-semibold">{r.username}</p>
+                  </div>
+
                   <p className="text-yellow-400">Rating: {r.rating} / 5</p>
                   <p>{r.comment}</p>
                   <p className="text-xs text-gray-400">{new Date(r.timestamp).toLocaleString()}</p>
@@ -221,9 +259,25 @@ function RoomDetails() {
             </div>
           )}
           <div className="flex justify-end mt-4">
-            <button onClick={() => setReviewModalOpen(true)} className="px-4 py-2 bg-blue-600 rounded text-white hover:bg-blue-500">
-              Review / Give Review
+            <button
+              disabled={isSubmitting || hasReviewed}
+              onClick={() => {
+                if (!hasBooked) {
+                  toast.info("You must book before reviewing.");
+                  return;
+                }
+                if (hasReviewed) {
+                  toast.info("You've already reviewed this room.");
+                  return;
+                }
+                setReviewModalOpen(true);
+              }}
+              className={`px-4 py-2 rounded text-white ${hasReviewed ? "bg-gray-500 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-500"}`}
+            >
+              {hasReviewed ? "Reviewed" : "Review / Give Review"}
             </button>
+
+
           </div>
 
         </div>
@@ -272,7 +326,14 @@ function RoomDetails() {
               <p className="font-bold text-lg">Total: ${grandTotal.toFixed(2)}</p>
               <div className="flex justify-end gap-2 mt-4">
                 <button onClick={() => setBookingSummaryIsOpen(false)} className="bg-gray-300 px-3 py-1 rounded">Cancel</button>
-                <button onClick={confirmBooking} className="bg-green-600 text-white px-3 py-1 rounded">Confirm</button>
+                <button
+                  onClick={confirmBooking}
+                  disabled={isSubmitting}
+                  className={`bg-green-600 text-white px-3 py-1 rounded ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""}`}
+                >
+                  {isSubmitting ? "Processing..." : "Confirm"}
+                </button>
+
               </div>
             </div>
           </motion.div>
@@ -285,16 +346,18 @@ function RoomDetails() {
             className="fixed inset-0 flex items-center justify-center bg-black/70 z-50"
           >
             <div className="bg-white text-black rounded-xl p-6 w-96 relative">
-              <h2 className="text-xl font-bold mb-4">Leave a Review</h2>
+
               <p><strong>User:</strong> {user?.displayName || user?.email}</p>
               <div className="my-2">
                 <label>Rating:</label>
                 <Rating
                   count={5}
+                  edit={true}
                   value={rating}
-                  onChange={(rate) => setRating(rate)}
+                  onChange={setRating}
                   size={24}
-                  activeColor="#ffd700"
+                  emptyIcon={<i className="far fa-star text-gray-400"></i>}
+                  filledIcon={<i className="fa fa-star text-yellow-400"></i>}
                 />
               </div>
               <div className="my-2">
@@ -305,42 +368,53 @@ function RoomDetails() {
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                 />
+                {!comment.trim() && <p className="text-sm text-red-500">Comment cannot be empty.</p>}
               </div>
-              {
-                hasBooked && (<div className="flex justify-end gap-2 mt-4">
-                  <button onClick={() => setReviewModalOpen(false)} className="bg-gray-300 px-3 py-1 rounded">Cancel</button>
-                  <button
-                    onClick={async () => {
-                      const review = {
+              <div className="flex justify-end gap-2 mt-4">
+                <button onClick={() => setReviewModalOpen(false)} className="bg-gray-300 px-3 py-1 rounded">Cancel</button>
+                <button
+                  disabled={!comment.trim() || isSubmitting}
+                  onClick={async () => {
+                    const review = {
+                      roomId: id,
+                      username: user?.displayName || user?.email,
+                      email: user?.email,
+                      rating,
+                      comment,
+                      timestamp: new Date(),
+                      avatar: user.photoURL || `https://i.pravatar.cc/150?u=${user.email}`
+                    };
+
+                    const res = await fetch("http://localhost:5000/api/reviews", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
                         roomId: id,
                         username: user?.displayName || user?.email,
-                        email: user?.email, // required for booking check
+                        email: user?.email,
                         rating,
                         comment,
                         timestamp: new Date(),
-                      };
+                        avatar: user.photoURL || `https://i.pravatar.cc/150?u=${user.email}`,
+                      }),
+                    });
 
-                      const res = await fetch("http://localhost:5000/api/reviews", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(review),
-                      });
-                      if (res.ok) {
-                        toast.success("Review submitted!");
-                        setReviews([...reviews, review]);
-                      } else {
-                        toast.error("Failed to submit review.");
-                      }
-                      setReviewModalOpen(false);
-                      setRating(0);
-                      setComment("");
-                    }}
-                    className="bg-blue-600 text-white px-3 py-1 rounded"
-                  >
-                    Submit
-                  </button>
-                </div>)
-              }
+                    if (res.ok) {
+                      toast.success("Review submitted!");
+                      setReviews((prev) => [...prev, review]);
+                      setHasReviewed(true);
+                    } else {
+                      toast.error("Failed to submit review.");
+                    }
+                    setReviewModalOpen(false);
+                    setRating(0);
+                    setComment("");
+                  }}
+                  className="bg-blue-600 text-white px-3 py-1 rounded"
+                >
+                  Submit
+                </button>
+              </div>
             </div>
           </motion.div>
         )}

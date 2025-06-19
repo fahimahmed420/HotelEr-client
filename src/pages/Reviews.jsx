@@ -4,15 +4,14 @@ const Reviews = () => {
   const [reviews, setReviews] = useState([]);
 
   useEffect(() => {
-    // Fetch data from MongoDB API (you should replace the URL below with your actual endpoint)
-    fetch('/api/reviews')
+    fetch('http://localhost:5000/api/reviews')
       .then((res) => res.json())
       .then((data) => setReviews(data))
       .catch((err) => console.error('Error fetching reviews:', err));
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-100 py-10 px-4">
+    <div className="min-h-screen bg-gray-100 py-20 px-4">
       <div className="max-w-7xl mx-auto grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {reviews.map((review, idx) => (
           <div
@@ -27,7 +26,7 @@ const Reviews = () => {
                 {[...Array(5)].map((_, i) => (
                   <svg
                     key={i}
-                    className="w-5 h-5 text-yellow-400"
+                    className={`w-5 h-5 ${i < review.rating ? 'text-yellow-400' : 'text-gray-300'}`}
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -35,19 +34,23 @@ const Reviews = () => {
                   </svg>
                 ))}
               </div>
-              <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google" className="w-6 h-6" />
+              <img
+                src="/hotel-svgrepo-com.svg"
+                alt="Google"
+                className="w-6 h-6"
+              />
             </div>
-            <h3 className="text-lg font-semibold mb-2">Fantastic Collaboration</h3>
-            <p className="text-gray-700 mb-4">{review.message}</p>
+            <h3 className="text-lg font-semibold mb-2">{review.username}</h3>
+            <p className="text-gray-700 mb-4">{review.comment}</p>
             <div className="flex items-center">
               <img
-                src={review.avatar || `https://i.pravatar.cc/40?img=${idx + 10}`}
-                alt={review.name}
+                src={review.avatar}
+                alt={review.username}
                 className="w-8 h-8 rounded-full mr-2"
               />
               <div>
-                <p className="font-medium text-sm">{review.name}</p>
-                <p className="text-xs text-gray-500">{new Date(review.date).toLocaleDateString()}</p>
+                <p className="font-medium text-sm">{review.email}</p>
+                <p className="text-xs text-gray-500">{new Date(review.timestamp).toLocaleDateString()}</p>
               </div>
             </div>
           </div>
