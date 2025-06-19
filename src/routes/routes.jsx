@@ -7,6 +7,10 @@ import Home from "../pages/Home";
 import ReserveTable from "../pages/ReserveTable";
 import ProfilePage from "../pages/ProfilePage";
 import RoomDetails from "../pages/RoomDetails";
+import Rooms from "../pages/Rooms";
+import Reviews from "../pages/Reviews";
+import MyBookings from "../pages/MyBookings";
+import PrivateRoute from "./PrivateRoute";
 
 const router = createBrowserRouter([
   {
@@ -14,9 +18,12 @@ const router = createBrowserRouter([
     element: <MainLayout />,
     children: [
       { path: "/", element: <Home /> },
-      { path: "/Reservation", element: <ReserveTable /> },
-      { path: "/profile", element: <ProfilePage /> },
-      { path: "/roomdetails", element: <RoomDetails /> }
+      { path: "/Reservation", element: <PrivateRoute><ReserveTable /></PrivateRoute> },
+      { path: "/profile", element: <PrivateRoute><ProfilePage /></PrivateRoute> },
+      {path:"/rooms", element: <Rooms/>},
+      { path: "/roomdetails/:id", element: <RoomDetails />},
+      { path: "/bookings", element: <PrivateRoute><MyBookings /></PrivateRoute> },
+      { path: "/reviews", element: <Reviews /> }
     ],
   },
   { path: "/login", element: <LoginPage /> },

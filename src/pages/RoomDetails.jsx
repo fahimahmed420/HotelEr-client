@@ -1,47 +1,61 @@
-// Imports same as before
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { useParams } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Modal from "react-modal";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { motion, AnimatePresence } from "framer-motion";
+import Rating from "react-rating-stars-component";
+import { AuthContext } from "../context/AuthContext";
 
 Modal.setAppElement("#root");
 
 function RoomDetails() {
-  const defaultStart = new Date();
-  const defaultEnd = new Date();
-  defaultEnd.setDate(defaultStart.getDate() + 1);
-
-  const savedRange = JSON.parse(localStorage.getItem("bookingDates"));
-
-  const [checkIn, setCheckIn] = useState(savedRange ? new Date(savedRange[0]) : defaultStart);
-  const [checkOut, setCheckOut] = useState(savedRange ? new Date(savedRange[1]) : defaultEnd);
-  const [selectedRange, setSelectedRange] = useState(savedRange ? [new Date(savedRange[0]), new Date(savedRange[1])] : [defaultStart, defaultEnd]);
-  const [guests, setGuests] = useState(4);
+  const { user } = useContext(AuthContext);
+  const { id } = useParams();
+  const [room, setRoom] = useState(null);
+  const [checkIn, setCheckIn] = useState(new Date());
+  const [checkOut, setCheckOut] = useState(() => {
+    const next = new Date();
+    next.setDate(next.getDate() + 1);
+    return next;
+  });
+  const [selectedRange, setSelectedRange] = useState([new Date(), new Date()]);
+  const [guests, setGuests] = useState(2);
+  const [checkInTime, setCheckInTime] = useState("After 2 PM");
   const [error, setError] = useState("");
-  const [submitted, setSubmitted] = useState(!!savedRange);
+  const [modalImage, setModalImage] = useState("");
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [bookingSummaryIsOpen, setBookingSummaryIsOpen] = useState(false);
-  const [modalImage, setModalImage] = useState("");
+  const [reviews, setReviews] = useState([]);
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState("");
 
-  const pricePerNight = 120;
+  const [hasBooked, setHasBooked] = useState(false);
 
-  const getNightsCount = () => {
-    const diff = (checkOut - checkIn) / (1000 * 60 * 60 * 24);
-    return Math.max(diff, 1);
-  };
-
-  const handleGuestsChange = (e) => {
-    const val = parseInt(e.target.value, 10);
-    if (!val || val < 1) {
-      setGuests(1);
-    } else if (val > 10) {
-      setGuests(10);
-    } else {
-      setGuests(val);
+  useEffect(() => {
+    if (user?.email) {
+      fetch(`http://localhost:5000/api/bookings/check?roomId=${id}&email=${user.email}`)
+        .then(res => res.json())
+        .then(data => setHasBooked(data.hasBooked))
+        .catch(console.error);
     }
-  };
+  }, [id, user]);
+
+
+  useEffect(() => {
+    fetch(`http://localhost:5000/api/rooms/${id}`)
+      .then(res => res.json())
+      .then(setRoom)
+      .catch(err => console.error("Failed to fetch room:", err));
+    fetch(`http://localhost:5000/api/reviews/${id}`)
+      .then(res => res.json())
+      .then(setReviews)
+      .catch(err => console.error("Failed to fetch reviews:", err));
+
+  }, [id]);
 
   const handleDateChange = (dates) => {
     const [start, end] = dates;
@@ -58,215 +72,281 @@ function RoomDetails() {
   };
 
   const handleReserve = () => {
+    if (!user) {
+      toast.error("Please log in to make a reservation.");
+      return;
+    }
     if (!error && selectedRange[0] && selectedRange[1]) {
       setBookingSummaryIsOpen(true);
     }
   };
 
-  const confirmBooking = () => {
-    setSubmitted(true);
-    localStorage.setItem("bookingDates", JSON.stringify([selectedRange[0], selectedRange[1]]));
-    toast.success("Room booked!", {
-      position: "top-center",
-      autoClose: 3000,
+  const confirmBooking = async () => {
+    const booking = {
+      roomId: id,
+      email: user?.email,
+      roomName: room.hotelName,
+      checkIn,
+      checkOut,
+      guests,
+      checkInTime,
+      total: grandTotal.toFixed(2),
+      createdAt: new Date()
+    };
+
+    const res = await fetch("http://localhost:5000/api/bookings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(booking),
     });
+
+    if (res.ok) {
+      toast.success("Booking confirmed!");
+    } else {
+      toast.error("Failed to book room.");
+    }
+
     setBookingSummaryIsOpen(false);
   };
 
-  const openModal = (imgUrl) => {
-    setModalImage(imgUrl);
-    setModalIsOpen(true);
+  const getNightsCount = () => {
+    const diff = (checkOut - checkIn) / (1000 * 60 * 60 * 24);
+    return Math.max(diff, 1);
   };
 
-  const closeModal = () => setModalIsOpen(false);
-  const closeBookingModal = () => setBookingSummaryIsOpen(false);
+  const pricePerNight = room?.pricePerNight || 100;
+  const cleaningFee = 40;
+  const taxRate = 0.1;
+  const baseTotal = pricePerNight * getNightsCount() * guests;
+  const taxAmount = baseTotal * taxRate;
+  const grandTotal = baseTotal + cleaningFee + taxAmount;
+
+  if (!room) {
+    return <div className="text-center text-white py-20">Loading room details...</div>;
+  }
 
   return (
-    <div
-      className="min-h-screen bg-cover bg-center text-white py-20"
-      style={{ backgroundImage: "url('https://source.unsplash.com/1600x900/?cabin,nature')" }}
-    >
-      <div className="min-h-screen grid grid-cols-1 md:grid-cols-3 gap-4 p-6">
-        {/* First Grid: Facilities and Hero Text */}
+    <div className="min-h-screen bg-cover bg-center text-white py-20" style={{ backgroundImage: `url('${room.gallery?.[0] || "/fallback.jpg"}')` }}>
+      <div className="min-h-screen grid grid-cols-1 md:grid-cols-3 gap-4 p-6 bg-black/60">
+        {/* Room Info */}
         <div className="md:col-span-2 grid md:grid-cols-2 gap-4 rounded-2xl p-4 bg-white/10 backdrop-blur text-white">
-          {/* Facilities */}
           <div className="space-y-2">
-            <h2 className="font-semibold text-lg mb-2 text-white">Room Facilities</h2>
-            <ul className="space-y-2 text-sm text-white/90">
-              <li>🛏️ 2 Queen Beds</li>
-              <li>🔥 Indoor Fireplace</li>
-              <li>🛁 Private Hot Tub</li>
-              <li>📡 High-speed Wi-Fi</li>
-              <li>📺 Smart TV with Netflix</li>
-              <li>🍳 Fully-equipped Kitchen</li>
-              <li>🚿 Walk-in Shower</li>
-              <li>🧺 Washer & Dryer</li>
-              <li>🚘 Free Parking</li>
-              <li>🌲 Forest Views</li>
+            <h2 className="text-2xl font-bold mb-2">{room.hotelName}</h2>
+            <p>{room.details}</p>
+            <ul className="space-y-1 text-sm pt-2">
+              {room.facilities?.map((f, i) => <li key={i}>• {f}</li>)}
             </ul>
-          </div>
-
-          {/* Hero Info */}
-          <div className="space-y-4">
-            <h1 className="text-3xl font-bold">Relax in the Pine Log Cabin</h1>
-            <p>Rustic charm meets modern comfort in a tranquil mountain setting.</p>
-            <div className="flex flex-wrap gap-2 text-sm">
-              <span className="bg-white/20 px-2 py-1 rounded-full">⭐ 4.9 (2,400+ reviews)</span>
-              <span className="bg-white/20 px-2 py-1 rounded-full">📍 15 Min to Town</span>
-              <span className="bg-white/20 px-2 py-1 rounded-full">🐾 Pet Friendly</span>
-              <span className="bg-white/20 px-2 py-1 rounded-full">🔑 Self Check-in</span>
-              <span className="bg-white/20 px-2 py-1 rounded-full">💻 Wi-Fi 100 Mbps</span>
-            </div>
             <div className="grid grid-cols-2 gap-2 pt-4 text-sm">
-              <div>
-                <div className="text-gray-300">Altitude</div>
-                <div className="text-xl font-bold">1,620 m</div>
-              </div>
-              <div>
-                <div className="text-gray-300">Temperature</div>
-                <div className="text-xl font-bold">18°C</div>
-              </div>
-              <div>
-                <div className="text-gray-300">To Nearest City</div>
-                <div className="text-xl font-bold">27.4 km</div>
-              </div>
-              <div>
-                <div className="text-gray-300">Price per Night</div>
-                <div className="text-xl font-bold">${pricePerNight}</div>
-              </div>
+              <div><div className="text-gray-300">Altitude</div><div className="font-bold">{room.altitude}</div></div>
+              <div><div className="text-gray-300">Temperature</div><div className="font-bold">{room.temperature}</div></div>
+              <div><div className="text-gray-300">To City</div><div className="font-bold">{room.toNearestCityKm} km</div></div>
+              <div><div className="text-gray-300">Price/night</div><div className="font-bold">${pricePerNight}</div></div>
             </div>
           </div>
         </div>
 
-        {/* Calendar Section */}
-        <div className="md:col-span-1 rounded-2xl p-4 bg-white/10 backdrop-blur">
-          <h2 className="font-semibold text-lg mb-3 text-white">Choose a Date</h2>
-          <div className="text-sm mb-2 text-gray-300">
-            {selectedRange[0].toLocaleDateString()} – {selectedRange[1]?.toLocaleDateString() || "..."}
-          </div>
-          <div className="bg-white/20 p-3 rounded-xl">
-            <DatePicker
-              selectsRange
-              startDate={selectedRange[0]}
-              endDate={selectedRange[1]}
-              onChange={handleDateChange}
-              inline
-              minDate={new Date()}
-            />
-          </div>
-          {error && <p className="text-red-400 mt-2 text-sm">{error}</p>}
-          <button
-            className={`mt-4 w-full py-2 rounded-xl text-white ${
-              error ? "bg-gray-400 cursor-not-allowed" : "bg-green-500 hover:bg-green-400"
-            }`}
-            disabled={!!error}
-            onClick={handleReserve}
-          >
-            Reserve
-          </button>
-        </div>
-
-        {/* Booking Info */}
-        <div className="md:col-span-1 rounded-2xl p-4 bg-white/10 backdrop-blur space-y-3">
-          <h2 className="font-semibold text-lg mb-2 text-white">Plan Your Stay</h2>
-          <div className="bg-white/20 p-3 rounded-lg flex justify-between">
-            <span>Room</span>
-            <span className="font-medium">Pine Log</span>
-          </div>
-          <div className="bg-white/20 p-3 rounded-lg flex justify-between">
-            <span>Check-in</span>
-            <span className="font-medium">{checkIn.toLocaleDateString()}</span>
-          </div>
-          <div className="bg-white/20 p-3 rounded-lg flex justify-between">
-            <span>Check-out</span>
-            <span className="font-medium">{checkOut.toLocaleDateString()}</span>
-          </div>
-          <div className="bg-white/20 p-3 rounded-lg flex justify-between items-center">
+        {/* Booking Panel */}
+        <div className="rounded-2xl p-4 bg-white/10 backdrop-blur space-y-4">
+          <h2 className="text-lg font-semibold">Plan Your Stay</h2>
+          <DatePicker
+            selectsRange
+            startDate={selectedRange[0]}
+            endDate={selectedRange[1]}
+            onChange={handleDateChange}
+            inline
+            minDate={new Date()}
+          />
+          {error && <p className="text-red-400">{error}</p>}
+          <div className="flex justify-between items-center text-sm">
             <span>Guests</span>
             <input
               type="number"
               min="1"
               max="10"
               value={guests}
-              onChange={handleGuestsChange}
-              className="bg-white/30 w-12 text-center rounded text-black"
+              onChange={(e) => setGuests(Math.max(1, parseInt(e.target.value || 1)))}
+              className="w-12 text-black rounded text-center"
             />
           </div>
+          <div className="flex justify-between items-center text-sm">
+            <span>Check-in Time</span>
+            <select
+              value={checkInTime}
+              onChange={(e) => setCheckInTime(e.target.value)}
+              className="text-black px-2 py-1 rounded"
+            >
+              {["After 9 AM", "After 12 PM", "After 2 PM", "After 4 PM", "After 6 PM"].map(t => (
+                <option key={t}>{t}</option>
+              ))}
+            </select>
+          </div>
+          <button
+            className="w-full py-2 rounded-xl bg-green-600 hover:bg-green-500"
+            onClick={handleReserve}
+            disabled={!user || !!error}
+          >
+            Reserve
+          </button>
         </div>
 
-        {/* Gallery Section */}
-        <div className="md:col-span-2 rounded-2xl p-4 bg-white/10 backdrop-blur">
-          <h2 className="font-semibold text-lg mb-4 text-white">Gallery</h2>
-          <div className="flex gap-4 overflow-x-auto scrollbar-hide">
-            {[1, 2, 3, 4, 5].map((num) => {
-              const url = `https://source.unsplash.com/400x300/?cabin,interior&sig=${num}`;
-              return (
-                <img
-                  key={num}
-                  src={url}
-                  onClick={() => openModal(url)}
-                  alt={`Gallery ${num}`}
-                  className="rounded-xl w-64 h-44 object-cover flex-shrink-0 cursor-pointer hover:scale-105 transition"
-                />
-              );
-            })}
+        {/* Gallery */}
+        <div className="md:col-span-3 bg-white/10 p-4 rounded-2xl mt-4">
+          <h2 className="text-xl font-bold mb-3">Gallery</h2>
+          <div className="flex gap-3 overflow-x-auto">
+            {room.gallery?.map((url, i) => (
+              <img
+                key={i}
+                src={url}
+                onClick={() => { setModalImage(url); setModalIsOpen(true); }}
+                alt={`Gallery ${i}`}
+                className="w-48 h-36 object-cover rounded-lg hover:scale-105 transition cursor-pointer"
+              />
+            ))}
           </div>
         </div>
+        <div className="md:col-span-3 bg-white/10 p-4 rounded-2xl mt-4">
+          <h2 className="text-xl font-bold mb-3">User Reviews</h2>
+          {reviews.length === 0 ? (
+            <p className="text-sm text-gray-300">No reviews yet.</p>
+          ) : (
+            <div className="space-y-3">
+              {reviews.map((r, idx) => (
+                <div key={idx} className="bg-white/20 p-3 rounded-lg">
+                  <p className="font-semibold">{r.username}</p>
+                  <p className="text-yellow-400">Rating: {r.rating} / 5</p>
+                  <p>{r.comment}</p>
+                  <p className="text-xs text-gray-400">{new Date(r.timestamp).toLocaleString()}</p>
+                </div>
+              ))}
+            </div>
+          )}
+          <div className="flex justify-end mt-4">
+            <button onClick={() => setReviewModalOpen(true)} className="px-4 py-2 bg-blue-600 rounded text-white hover:bg-blue-500">
+              Review / Give Review
+            </button>
+          </div>
+
+        </div>
+
       </div>
 
-      {/* Image Modal */}
-      <Modal
-        isOpen={modalIsOpen}
-        onRequestClose={closeModal}
-        className="fixed inset-0 flex items-center justify-center bg-black/80"
-      >
-        <div className="relative">
-          <button
-            onClick={closeModal}
-            className="absolute top-2 right-2 bg-white text-black px-2 py-1 rounded"
+      {/* Enlarged Image Modal */}
+      <AnimatePresence>
+        {modalIsOpen && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 flex items-center justify-center bg-black/80 z-50"
           >
-            Close
-          </button>
-          <img src={modalImage} alt="Enlarged view" className="max-w-full max-h-[90vh] rounded" />
-        </div>
-      </Modal>
+            <div className="relative">
+              <button
+                onClick={() => setModalIsOpen(false)}
+                className="absolute top-2 right-2 bg-white text-black px-2 py-1 rounded"
+              >
+                Close
+              </button>
+              <img src={modalImage} alt="Enlarged" className="max-w-full max-h-[90vh] rounded" />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Booking Summary Modal */}
-      <Modal
-        isOpen={bookingSummaryIsOpen}
-        onRequestClose={closeBookingModal}
-        className="fixed inset-0 flex items-center justify-center bg-black/80 text-black"
-      >
-        <div className="bg-white rounded-xl p-6 w-96 space-y-4 relative">
-          <h2 className="text-2xl font-bold text-center">Booking Summary</h2>
-          <p>
-            Nights: <strong>{getNightsCount()}</strong>
-          </p>
-          <p>
-            Guests: <strong>{guests}</strong>
-          </p>
-          <p>
-            Price per night: <strong>${pricePerNight}</strong>
-          </p>
-          <p>
-            Total:{" "}
-            <strong>
-              ${pricePerNight} × {getNightsCount()} nights × {guests} guests = $
-              {pricePerNight * getNightsCount() * guests}
-            </strong>
-          </p>
-          <div className="flex justify-end gap-2 pt-4">
-            <button onClick={closeBookingModal} className="px-4 py-2 bg-gray-300 rounded">
-              Cancel
-            </button>
-            <button onClick={confirmBooking} className="px-4 py-2 bg-green-500 text-white rounded">
-              Confirm
-            </button>
-          </div>
-        </div>
-      </Modal>
+      <AnimatePresence>
+        {bookingSummaryIsOpen && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="fixed inset-0 flex items-center justify-center bg-black/70 z-50"
+          >
+            <div className="bg-white rounded-xl p-6 w-96 text-black relative">
+              <h2 className="text-xl font-bold mb-3">Booking Summary</h2>
+              <p><strong>Check-in:</strong> {checkIn.toLocaleDateString()} at {checkInTime}</p>
+              <p><strong>Check-out:</strong> {checkOut.toLocaleDateString()}</p>
+              <p><strong>Guests:</strong> {guests}</p>
+              <p><strong>Price/night:</strong> ${pricePerNight}</p>
+              <hr className="my-2" />
+              <p>Subtotal: ${baseTotal.toFixed(2)}</p>
+              <p>Cleaning Fee: ${cleaningFee}</p>
+              <p>Tax (10%): ${taxAmount.toFixed(2)}</p>
+              <p className="font-bold text-lg">Total: ${grandTotal.toFixed(2)}</p>
+              <div className="flex justify-end gap-2 mt-4">
+                <button onClick={() => setBookingSummaryIsOpen(false)} className="bg-gray-300 px-3 py-1 rounded">Cancel</button>
+                <button onClick={confirmBooking} className="bg-green-600 text-white px-3 py-1 rounded">Confirm</button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+        {reviewModalOpen && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="fixed inset-0 flex items-center justify-center bg-black/70 z-50"
+          >
+            <div className="bg-white text-black rounded-xl p-6 w-96 relative">
+              <h2 className="text-xl font-bold mb-4">Leave a Review</h2>
+              <p><strong>User:</strong> {user?.displayName || user?.email}</p>
+              <div className="my-2">
+                <label>Rating:</label>
+                <Rating
+                  count={5}
+                  value={rating}
+                  onChange={(rate) => setRating(rate)}
+                  size={24}
+                  activeColor="#ffd700"
+                />
+              </div>
+              <div className="my-2">
+                <label>Comment:</label>
+                <textarea
+                  rows="3"
+                  className="w-full border p-2 rounded"
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                />
+              </div>
+              {
+                hasBooked && (<div className="flex justify-end gap-2 mt-4">
+                  <button onClick={() => setReviewModalOpen(false)} className="bg-gray-300 px-3 py-1 rounded">Cancel</button>
+                  <button
+                    onClick={async () => {
+                      const review = {
+                        roomId: id,
+                        username: user?.displayName || user?.email,
+                        email: user?.email, // required for booking check
+                        rating,
+                        comment,
+                        timestamp: new Date(),
+                      };
 
-      {/* Toast */}
+                      const res = await fetch("http://localhost:5000/api/reviews", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(review),
+                      });
+                      if (res.ok) {
+                        toast.success("Review submitted!");
+                        setReviews([...reviews, review]);
+                      } else {
+                        toast.error("Failed to submit review.");
+                      }
+                      setReviewModalOpen(false);
+                      setRating(0);
+                      setComment("");
+                    }}
+                    className="bg-blue-600 text-white px-3 py-1 rounded"
+                  >
+                    Submit
+                  </button>
+                </div>)
+              }
+            </div>
+          </motion.div>
+        )}
+
+      </AnimatePresence>
+
       <ToastContainer />
     </div>
   );
