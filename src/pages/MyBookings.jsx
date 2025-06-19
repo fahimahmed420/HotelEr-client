@@ -89,7 +89,7 @@ function MyBookings() {
   };
 
   return (
-    <div className="p-6 max-w-5xl mx-auto py-20 text-black">
+    <div className="p-6 max-w-5xl mx-auto py-20 text-black min-h-screen">
       <h1 className="text-3xl font-bold mb-6">My Bookings</h1>
 
       {isLoading ? (

@@ -58,16 +58,9 @@ function RoomDetails() {
       .catch(err => console.error("Failed to fetch room:", err));
   }, [id]);
 
+
   useEffect(() => {
-    if (user?.email) {
-      fetch(`http://localhost:5000/api/reviews/check?roomId=${id}&email=${user.email}`)
-        .then(res => res.json())
-        .then(data => setHasReviewed(data.hasReviewed))
-        .catch(console.error);
-    }
-  }, [id, user]);
-  useEffect(() => {
-    fetch(`http://localhost:5000/api/reviews?roomId=${id}`)
+    fetch(`http://localhost:5000/api/reviews/${id}`)
       .then(res => res.json())
       .then(setReviews)
       .catch(console.error);
@@ -126,6 +119,7 @@ function RoomDetails() {
 
       if (res.ok) {
         toast.success("Booking confirmed!");
+        setHasBooked(true);
       } else {
         toast.error("Failed to book room.");
       }
@@ -137,6 +131,7 @@ function RoomDetails() {
     setBookingSummaryIsOpen(false);
     setIsSubmitting(false);
   };
+
 
 
   const getNightsCount = () => {
@@ -234,31 +229,44 @@ function RoomDetails() {
             ))}
           </div>
         </div>
-        <div className="md:col-span-3 bg-white/10 p-4 rounded-2xl mt-4">
+        <div className="col-span-3 bg-white/10 p-4 rounded-2xl mt-4">
           <h2 className="text-xl font-bold mb-3">User Reviews</h2>
+
           {reviews.length === 0 ? (
             <p className="text-sm text-gray-300">No reviews yet.</p>
           ) : (
-            <div className="space-y-3">
+            <div
+              className="
+        grid gap-4
+        grid-cols-1
+        sm:grid-cols-2
+        md:grid-cols-3
+        lg:grid-cols-4
+        xl:grid-cols-5
+      "
+            >
               {reviews.map((r, idx) => (
                 <div key={idx} className="bg-white/20 p-3 rounded-lg">
                   <div className="flex items-center gap-2 mb-1">
                     <img
                       src={r.avatar || `https://i.pravatar.cc/150?u=${r.email}`}
                       alt="avatar"
-                      className="w-8 h-8 rounded-full"
+                      className="w-8 h-8 rounded-full flex-shrink-0"
                     />
-                    <p className="font-semibold">{r.username}</p>
+                    <p className="font-semibold truncate">{r.username}</p>
                   </div>
 
                   <p className="text-yellow-400">Rating: {r.rating} / 5</p>
-                  <p>{r.comment}</p>
-                  <p className="text-xs text-gray-400">{new Date(r.timestamp).toLocaleString()}</p>
+                  <p className="text-sm mt-1 line-clamp-3">{r.comment}</p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    {new Date(r.timestamp).toLocaleString()}
+                  </p>
                 </div>
               ))}
             </div>
           )}
-          <div className="flex justify-end mt-4">
+
+          <div className="flex justify-end mt-4 w-full">
             <button
               disabled={isSubmitting || hasReviewed}
               onClick={() => {
@@ -272,15 +280,16 @@ function RoomDetails() {
                 }
                 setReviewModalOpen(true);
               }}
-              className={`px-4 py-2 rounded text-white ${hasReviewed ? "bg-gray-500 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-500"}`}
+              className={`w-full sm:w-auto px-4 py-2 rounded text-white transition ${hasReviewed
+                ? "bg-gray-500 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-500"
+                }`}
             >
-              {hasReviewed ? "Reviewed" : "Review / Give Review"}
+              {hasReviewed ? "Reviewed" : "Give Review"}
             </button>
-
-
           </div>
-
         </div>
+
 
       </div>
 
@@ -404,7 +413,7 @@ function RoomDetails() {
                       setReviews((prev) => [...prev, review]);
                       setHasReviewed(true);
                     } else {
-                      toast.error("Failed to submit review.");
+                      toast.error("Already submitted a review.");
                     }
                     setReviewModalOpen(false);
                     setRating(0);
