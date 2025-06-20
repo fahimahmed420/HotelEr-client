@@ -58,7 +58,7 @@ const Navbar = () => {
             scrolled ? 'text-lg' : 'text-xl'
           }`}
         >
-          Hotel Booking
+          HotelEr
         </h1>
 
         {/* Desktop Nav Links */}
@@ -103,7 +103,7 @@ const Navbar = () => {
                   <img
                     src={user.photoURL}
                     alt="User"
-                    className="w-8 h-8 rounded-full border border-[#ffa94d]"
+                    className="w-8 h-8 rounded-full border border-[#ffa94d] cursor-pointer"
                   />
                 ) : (
                   <div className="w-8 h-8 rounded-full bg-[#ffa94d] text-white flex items-center justify-center font-bold uppercase">
@@ -114,7 +114,7 @@ const Navbar = () => {
 
               {showDropdown && (
                 <div
-                  className={`absolute right-0 mt-2 w-40 rounded-md shadow-lg py-2 z-50 ${
+                  className={`absolute right-0 mt-2 w-40 rounded-md shadow-lg py-2 z-50 cursor-pointer ${
                     darkMode
                       ? 'bg-[#2b1a0c] text-[#f5deb3]'
                       : 'bg-white text-gray-800'
@@ -129,7 +129,7 @@ const Navbar = () => {
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className="block w-full text-left px-4 py-2 text-sm hover:bg-[#ffa94d]/10"
+                    className="block w-full text-left px-4 py-2 text-sm hover:bg-[#ffa94d]/10 cursor-pointer"
                   >
                     Logout
                   </button>

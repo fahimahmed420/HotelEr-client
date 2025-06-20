@@ -1,9 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import "../styles/datepicker-custom.css"; // keep your custom styles
+import "../styles/datepicker-custom.css";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const BannerSection = () => {
   const [checkIn, setCheckIn] = useState(new Date());
@@ -14,7 +16,7 @@ const BannerSection = () => {
   const [index, setIndex] = useState(0);
   const navigate = useNavigate();
 
-  const images = ["2579.jpg", "footer.png", "login-bg.jpg"];
+  const images = ["Cloud.jpg", "Everest.jpeg", "login-bg.jpg"];
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -36,18 +38,40 @@ const BannerSection = () => {
     return () => clearInterval(interval);
   }, [images.length]);
 
+  const handleCheckAvailability = async () => {
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/rooms/available?checkIn=${checkIn.toISOString()}&checkOut=${checkOut.toISOString()}`
+      );
+      const availableRooms = await res.json();
+
+      if (availableRooms.length > 0) {
+        const roomNames = availableRooms.map((r) => r.hotelName).join(", ");
+        toast.success(`Available Rooms: ${roomNames}`);
+      } else {
+        toast.info("No rooms available in these dates.");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to check availability.");
+    }
+  };
+
   return (
-    <section ref={sectionRef} className="relative min-h-[100vh] flex flex-col justify-center items-center overflow-hidden">
+    <section
+      ref={sectionRef}
+      className="relative min-h-[100vh] flex flex-col justify-center items-center overflow-hidden"
+    >
       <div
-        className={`absolute top-0 left-0 w-full h-full bg-center bg-cover transition-opacity duration-1000 ${bgVisible ? "opacity-100" : "opacity-0"}`}
+        className={`absolute top-0 left-0 w-full h-full bg-center bg-cover transition-opacity duration-1000 ${
+          bgVisible ? "opacity-100" : "opacity-0"
+        }`}
         style={{
           backgroundImage: bgVisible ? `url(${images[index]})` : "none",
           backgroundAttachment: "fixed",
         }}
       />
       <div className="relative z-10 flex flex-col items-center justify-center text-center text-white max-w-3xl w-full p-4">
-        {/* Faded Text Animations */}
-        {/* Faded + Shimmer Text Animations */}
         <motion.h1
           className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight 
              bg-gradient-to-r from-blue-300 via-purple-300 to-pink-300
@@ -56,7 +80,7 @@ const BannerSection = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1 }}
         >
-          Book Your Dream Hotel With Hoteler
+          Book Your Dream Hotel With HotelEr
         </motion.h1>
 
         <motion.p
@@ -69,8 +93,6 @@ const BannerSection = () => {
           Find the best rooms and special deals for your next trip.
         </motion.p>
 
-
-        {/* Button with Gradient Hover Effect */}
         <motion.button
           onClick={() => navigate("/rooms")}
           whileHover={{ scale: 1.03 }}
@@ -126,11 +148,7 @@ const BannerSection = () => {
           </div>
 
           <motion.button
-            onClick={() =>
-              alert(
-                `Check-In: ${checkIn.toDateString()}, Check-Out: ${checkOut.toDateString()}, Guests: ${guests}`
-              )
-            }
+            onClick={handleCheckAvailability}
             whileHover={{ scale: 1.03 }}
             className="bg-gradient-to-r from-gray-800 to-gray-600 text-white px-6 py-3 rounded-full font-semibold text-sm hover:from-gray-600 hover:to-gray-800 transition"
           >
@@ -138,6 +156,7 @@ const BannerSection = () => {
           </motion.button>
         </motion.div>
       </div>
+      <ToastContainer position="top-center" />
     </section>
   );
 };
