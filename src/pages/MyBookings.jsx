@@ -93,7 +93,6 @@ function MyBookings() {
 
       toast.success("Booking updated successfully");
       setEditBooking(null);
-      // Refresh
       const updated = await fetch(`${BASE_URL}/api/mybookings?email=${user.email}`).then(r => r.json());
       setBookings(updated);
     } catch (error) {

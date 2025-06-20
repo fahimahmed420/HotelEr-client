@@ -11,12 +11,12 @@ import { AuthContext } from "../context/AuthContext";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 
-
 Modal.setAppElement("#root");
 
 function RoomDetails() {
   const { user } = useContext(AuthContext);
   const { id } = useParams();
+
   const [room, setRoom] = useState(null);
   const [checkIn, setCheckIn] = useState(new Date());
   const [checkOut, setCheckOut] = useState(() => {
@@ -35,11 +35,14 @@ function RoomDetails() {
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [rating, setRating] = useState(1);
   const [comment, setComment] = useState("");
-
-
   const [hasReviewed, setHasReviewed] = useState(false);
   const [hasBooked, setHasBooked] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [bookedRanges, setBookedRanges] = useState([]);
+  const [isLoadingBookedDates, setIsLoadingBookedDates] = useState(true);
+
+
+
 
   useEffect(() => {
     if (user?.email) {
@@ -50,14 +53,12 @@ function RoomDetails() {
     }
   }, [id, user]);
 
-
   useEffect(() => {
     fetch(`http://localhost:5000/api/rooms/${id}`)
       .then(res => res.json())
       .then(setRoom)
       .catch(err => console.error("Failed to fetch room:", err));
   }, [id]);
-
 
   useEffect(() => {
     fetch(`http://localhost:5000/api/reviews/${id}`)
@@ -66,7 +67,38 @@ function RoomDetails() {
       .catch(console.error);
   }, [id]);
 
+  const fetchBookedDates = () => {
+    setIsLoadingBookedDates(true);
+    fetch(`http://localhost:5000/api/bookings/dates/${id}`)
+      .then(res => res.json())
+      .then(data => {
+        const parsed = data.map(({ start, end }) => ({
+          start: new Date(start),
+          end: new Date(end),
+        }));
+        setBookedRanges(parsed);
+      })
+      .catch(err => console.error("Failed to fetch booked ranges:", err))
+      .finally(() => setIsLoadingBookedDates(false));
+  };
 
+  useEffect(() => {
+    fetchBookedDates();
+  }, [id]);
+
+
+
+  const getDisabledDates = () => {
+    const disabled = [];
+    bookedRanges.forEach(({ start, end }) => {
+      const current = new Date(start);
+      while (current <= new Date(end)) {
+        disabled.push(new Date(current));
+        current.setDate(current.getDate() + 1);
+      }
+    });
+    return disabled;
+  };
 
   const handleDateChange = (dates) => {
     const [start, end] = dates;
@@ -82,7 +114,18 @@ function RoomDetails() {
     }
   };
 
+  const isDateOverlapping = () => {
+    return bookedRanges.some(({ start, end }) =>
+      (checkIn <= new Date(end) && checkOut >= new Date(start))
+    );
+  };
+
   const handleReserve = () => {
+    if (isDateOverlapping()) {
+      toast.error("Selected dates are already booked.");
+      return;
+    }
+
     if (!error && selectedRange[0] && selectedRange[1]) {
       setBookingSummaryIsOpen(true);
     }
@@ -120,6 +163,7 @@ function RoomDetails() {
       if (res.ok) {
         toast.success("Booking confirmed!");
         setHasBooked(true);
+        fetchBookedDates();
       } else {
         toast.error("Failed to book room.");
       }
@@ -131,8 +175,6 @@ function RoomDetails() {
     setBookingSummaryIsOpen(false);
     setIsSubmitting(false);
   };
-
-
 
   const getNightsCount = () => {
     const diff = (checkOut - checkIn) / (1000 * 60 * 60 * 24);
@@ -151,7 +193,7 @@ function RoomDetails() {
   }
 
   return (
-    <div className="min-h-screen bg-cover bg-center text-white " style={{ backgroundImage: `url('${room.gallery?.[0]}')` }}>
+    <div className="min-h-screen bg-cover bg-center text-white" style={{ backgroundImage: `url('${room.gallery?.[0]}')` }}>
       <div className="min-h-screen grid grid-cols-1 md:grid-cols-3 gap-4 p-6 bg-black/60 py-20">
         {/* Room Info */}
         <div className="md:col-span-2 grid md:grid-cols-2 gap-4 rounded-2xl p-4 bg-white/10 backdrop-blur text-white">
@@ -173,14 +215,20 @@ function RoomDetails() {
         {/* Booking Panel */}
         <div className="rounded-2xl p-4 bg-white/10 backdrop-blur space-y-4">
           <h2 className="text-lg font-semibold">Plan Your Stay</h2>
-          <DatePicker
-            selectsRange
-            startDate={selectedRange[0]}
-            endDate={selectedRange[1]}
-            onChange={handleDateChange}
-            inline
-            minDate={new Date()}
-          />
+          <h2 className="text-red-300 font-semibold">Disabled date are already booked</h2>
+          {isLoadingBookedDates ? (
+            <p className="text-sm text-gray-300">Loading available dates...</p>
+          ) : (
+            <DatePicker
+              selectsRange
+              startDate={selectedRange[0]}
+              endDate={selectedRange[1]}
+              onChange={handleDateChange}
+              inline
+              minDate={new Date()}
+              excludeDates={getDisabledDates()} />
+          )}
+
           {error && <p className="text-red-400">{error}</p>}
           <div className="flex justify-between items-center text-sm">
             <span>Guests</span>
@@ -190,16 +238,14 @@ function RoomDetails() {
               max="10"
               value={guests}
               onChange={(e) => setGuests(Math.max(1, parseInt(e.target.value || 1)))}
-              className="w-12 text-black rounded text-center"
-            />
+              className="w-12 text-black rounded text-center" />
           </div>
           <div className="flex justify-between items-center text-sm">
             <span>Check-in Time</span>
             <select
               value={checkInTime}
               onChange={(e) => setCheckInTime(e.target.value)}
-              className="text-black px-2 py-1 rounded"
-            >
+              className="text-black px-2 py-1 rounded">
               {["After 9 AM", "After 12 PM", "After 2 PM", "After 4 PM", "After 6 PM"].map(t => (
                 <option key={t}>{t}</option>
               ))}
@@ -208,8 +254,7 @@ function RoomDetails() {
           <button
             className="w-full py-2 rounded-xl bg-green-600 hover:bg-green-500"
             onClick={handleReserve}
-            disabled={!!error}
-          >
+            disabled={!!error}>
             Reserve
           </button>
         </div>
@@ -224,35 +269,26 @@ function RoomDetails() {
                 src={url}
                 onClick={() => { setModalImage(url); setModalIsOpen(true); }}
                 alt={`Gallery ${i}`}
-                className="w-48 h-36 object-cover rounded-lg hover:scale-105 transition cursor-pointer"
-              />
+                className="w-48 h-36 object-cover rounded-lg hover:scale-105 transition cursor-pointer" />
             ))}
           </div>
         </div>
+
+        {/* Reviews */}
         <div className="col-span-3 bg-white/10 p-4 rounded-2xl mt-4">
           <h2 className="text-xl font-bold mb-3">User Reviews</h2>
-
           {reviews.length === 0 ? (
             <p className="text-sm text-gray-300">No reviews yet.</p>
           ) : (
             <div
-              className="
-        grid gap-4
-        grid-cols-1
-        sm:grid-cols-2
-        md:grid-cols-3
-        lg:grid-cols-4
-        xl:grid-cols-5
-      "
-            >
+              className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
               {reviews.map((r, idx) => (
                 <div key={idx} className="bg-white/20 p-3 rounded-lg">
                   <div className="flex items-center gap-2 mb-1">
                     <img
                       src={r.avatar || `https://i.pravatar.cc/150?u=${r.email}`}
                       alt="avatar"
-                      className="w-8 h-8 rounded-full flex-shrink-0"
-                    />
+                      className="w-8 h-8 rounded-full flex-shrink-0" />
                     <p className="font-semibold truncate">{r.username}</p>
                   </div>
 

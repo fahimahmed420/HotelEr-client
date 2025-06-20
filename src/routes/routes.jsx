@@ -8,9 +8,9 @@ import ReserveTable from "../pages/ReserveTable";
 import ProfilePage from "../pages/ProfilePage";
 import RoomDetails from "../pages/RoomDetails";
 import Rooms from "../pages/Rooms";
-import Reviews from "../pages/Reviews";
 import MyBookings from "../pages/MyBookings";
 import PrivateRoute from "./PrivateRoute";
+import AboutUs from "../pages/AboutUs";
 
 const router = createBrowserRouter([
   {
@@ -23,7 +23,7 @@ const router = createBrowserRouter([
       {path:"/rooms", element: <Rooms/>},
       { path: "/roomdetails/:id", element: <RoomDetails />},
       { path: "/bookings", element: <PrivateRoute><MyBookings /></PrivateRoute> },
-      { path: "/reviews", element: <Reviews /> }
+      { path: "/aboutus", element: <AboutUs /> }
     ],
   },
   { path: "/login", element: <LoginPage /> },
