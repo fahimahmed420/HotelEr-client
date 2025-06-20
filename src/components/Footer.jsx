@@ -11,7 +11,7 @@ const Footer = () => {
       {/* Overlay content */}
       <div className="bg-black/40 backdrop-blur-sm p-8 md:p-16 rounded-3xl max-w-6xl mx-auto">
         {/* Footer links */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 mt-20 text-sm">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-8  text-sm">
           <div>
             <h4 className="text-lime-400 font-semibold mb-3">Explore</h4>
             <ul className="space-y-1">
@@ -23,20 +23,13 @@ const Footer = () => {
           <div>
             <h4 className="text-lime-400 font-semibold mb-3">Learn</h4>
             <ul className="space-y-1">
-              <li><a href="#" className="hover:underline">How it Works</a></li>
+              <li><a href="#" className="hover:underline">About Us</a></li>
               <li><a href="#" className="hover:underline">Safety Tips</a></li>
               <li><a href="#" className="hover:underline">FAQ</a></li>
               <li><a href="#" className="hover:underline">Blog</a></li>
             </ul>
           </div>
-          <div>
-            <h4 className="text-lime-400 font-semibold mb-3">Community</h4>
-            <ul className="space-y-1">
-              <li><a href="#" className="hover:underline">Testimonials</a></li>
-              <li><a href="#" className="hover:underline">Partner Stories</a></li>
-              <li><a href="#" className="hover:underline">Events & Meetups</a></li>
-            </ul>
-          </div>
+         
           <div>
             <h4 className="text-lime-400 font-semibold mb-3">Support</h4>
             <ul className="space-y-1">

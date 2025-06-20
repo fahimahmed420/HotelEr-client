@@ -1,142 +1,218 @@
 import React, { useContext, useEffect, useState } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import { AuthContext } from "../context/AuthContext";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-// Optional: Replace with environment variable if available
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 function MyBookings() {
   const [bookings, setBookings] = useState([]);
   const [rooms, setRooms] = useState({});
   const [isLoading, setIsLoading] = useState(true);
+  const [editBooking, setEditBooking] = useState(null);
+  const [newCheckIn, setNewCheckIn] = useState(new Date());
+  const [newCheckOut, setNewCheckOut] = useState(new Date());
+
   const { user } = useContext(AuthContext);
 
-  // Fetch bookings and related room info
   useEffect(() => {
     if (!user?.email) return;
 
-    const fetchBookingsAndRooms = async () => {
+    const fetchData = async () => {
       setIsLoading(true);
       try {
         const res = await fetch(`${BASE_URL}/api/mybookings?email=${user.email}`);
         const data = await res.json();
         setBookings(data);
 
-        const uniqueRoomIds = [...new Set(data.map(b => b.roomId))];
-
+        const roomIds = [...new Set(data.map(b => b.roomId))];
         const roomResponses = await Promise.all(
-          uniqueRoomIds.map(id =>
-            fetch(`${BASE_URL}/api/rooms/${id}`).then(res => res.json())
-          )
+          roomIds.map(id => fetch(`${BASE_URL}/api/rooms/${id}`).then(r => r.json()))
         );
-
         const roomData = {};
-        uniqueRoomIds.forEach((id, i) => {
+        roomIds.forEach((id, i) => {
           roomData[id] = roomResponses[i];
         });
-
         setRooms(roomData);
-      } catch (err) {
-        console.error("Error fetching bookings:", err);
+      } catch (error) {
+        console.error(error);
         toast.error("Failed to load bookings.");
       } finally {
         setIsLoading(false);
       }
     };
-
-    fetchBookingsAndRooms();
+    fetchData();
   }, [user]);
 
   const cancelBooking = async (booking) => {
-    const checkInDate = new Date(booking.checkIn);
-    const today = new Date();
-    const oneDayBeforeCheckIn = new Date(checkInDate);
-    oneDayBeforeCheckIn.setDate(checkInDate.getDate() - 1);
-
-    if (today >= oneDayBeforeCheckIn) {
-      toast.error("Booking can only be cancelled at least 1 day before check-in.");
-      return;
-    }
-
     if (!window.confirm("Are you sure you want to cancel this booking?")) return;
 
     try {
       const res = await fetch(`${BASE_URL}/api/bookings/${booking._id}`, {
         method: "DELETE",
       });
+      if (!res.ok) throw new Error("Cancel failed");
 
-      if (!res.ok) throw new Error("Failed to delete booking");
-
-      // Update room availability
-      const updateRes = await fetch(`${BASE_URL}/api/rooms/${booking.roomId}/availability`, {
+      // Try updating room availability
+      await fetch(`${BASE_URL}/api/rooms/${booking.roomId}/availability`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ available: true }),
       });
-
-      if (!updateRes.ok) {
-        console.warn("Room availability update failed:", await updateRes.text());
-        toast.warning("Booking canceled, but room availability update failed.");
-      }
-
-      setBookings(prev => prev.filter(b => b._id !== booking._id));
+      setBookings((prev) => prev.filter((b) => b._id !== booking._id));
       toast.success("Booking canceled successfully.");
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
       toast.error("Failed to cancel booking.");
     }
   };
+  
+  const openEditModal = (booking) => {
+    setEditBooking(booking);
+    setNewCheckIn(new Date(booking.checkIn));
+    setNewCheckOut(new Date(booking.checkOut));
+  };
+  
+  const handleUpdateDate = async () => {
+    if (!editBooking) return;
 
+    if (newCheckIn >= newCheckOut) {
+      toast.error("Check-out must be after Check-in.");
+      return;
+    }
+
+    try {
+      const res = await fetch(`${BASE_URL}/api/bookings/${editBooking._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ checkIn: newCheckIn, checkOut: newCheckOut }),
+      });
+      if (!res.ok) throw new Error("Update failed");
+
+      toast.success("Booking updated successfully");
+      setEditBooking(null);
+      // Refresh
+      const updated = await fetch(`${BASE_URL}/api/mybookings?email=${user.email}`).then(r => r.json());
+      setBookings(updated);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to update booking.");
+    }
+  };
+  
   return (
-    <div className="p-6 max-w-5xl mx-auto py-20 text-black min-h-screen">
-      <h1 className="text-3xl font-bold mb-6">My Bookings</h1>
+    <div className="p-6 max-w-6xl mx-auto py-20 text-gray-900 min-h-screen">
+      <h1 className="text-3xl font-bold text-center md:text-left">My Bookings</h1>
 
-      {isLoading ? (
-        <p className="text-gray-500">Loading bookings...</p>
-      ) : bookings.length === 0 ? (
-        <p className="text-gray-500">You have no bookings yet.</p>
-      ) : (
-        <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {bookings.map((booking) => {
-            const room = rooms[booking.roomId] || {};
-            const isCancelable =
-              new Date() < new Date(new Date(booking.checkIn).setDate(new Date(booking.checkIn).getDate() - 1));
+      {isLoading && <p className="text-gray-500 mt-4">Loading bookings...</p>}
 
-            return (
-              <li key={booking._id} className="bg-white rounded-xl shadow p-4 space-y-2">
-                {room.gallery?.[0] && (
-                  <img
-                    src={room.gallery[0]}
-                    alt={room.hotelName || "Room image"}
-                    className="w-full h-40 object-cover rounded-lg"
-                  />
-                )}
-                <h2 className="text-lg font-semibold">{room.hotelName || "Loading room..."}</h2>
-                <p><strong>Check-in:</strong> {new Date(booking.checkIn).toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "short",
-                  day: "numeric",
-                  weekday: "short"
-                })}</p>
-                <p><strong>Guests:</strong> {booking.guests}</p>
-                <p><strong>Total:</strong> ${booking.total}</p>
-                <button
-                  onClick={() => cancelBooking(booking)}
-                  className="mt-2 bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded disabled:opacity-50"
-                  disabled={!isCancelable}
-                >
-                  Cancel
-                </button>
-                {!isCancelable && (
-                  <p className="text-xs text-gray-400 italic">Cannot cancel within 1 day of check-in.</p>
-                )}
-              </li>
-            );
-          })}
-        </ul>
+      {!isLoading && bookings.length === 0 && (
+        <p className="text-gray-500 mt-4">You have no bookings yet.</p>
       )}
 
+      {!isLoading && bookings.length > 0 && (
+        <div className="overflow-x-auto mt-4">
+          <table className="w-full rounded-lg overflow-hidden border border-gray-300 text-left">
+            <thead className="bg-gray-100 text-gray-700">
+              <tr>
+                <th className="p-3">Room</th>
+                <th className="p-3">Check-In</th>
+                <th className="p-3">Check-Out</th>
+                <th className="p-3">Guests</th>
+                <th className="p-3">Total</th>
+                <th className="p-3">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {bookings.map((booking) => {
+                const room = rooms[booking.roomId] || {};
+                const isCancelable =
+                  new Date() < new Date(new Date(booking.checkIn).setDate(new Date(booking.checkIn).getDate() - 1));
+                return (
+                  <tr
+                    key={booking._id}
+                    className="bg-white hover:bg-gray-50 border-t border-gray-200"
+                  >
+                    <td className="p-3">{room.hotelName || "Loading…"}</td>
+                    <td className="p-3">
+                      {new Date(booking.checkIn).toLocaleDateString()}
+                    </td>
+                    <td className="p-3">
+                      {new Date(booking.checkOut).toLocaleDateString()}
+                    </td>
+                    <td className="p-3">{booking.guests}</td>
+                    <td className="p-3">${booking.total}</td>
+                    <td className="p-3 flex flex-col sm:flex-row gap-2">
+                      <button
+                        onClick={() => openEditModal(booking)}
+                        className="bg-blue-600 hover:bg-blue-500 text-white rounded-full px-3 py-1 text-sm"
+                      >
+                        Update Date
+                      </button>
+                      <button
+                        onClick={() => cancelBooking(booking)}
+                        className={`rounded-full px-3 py-1 text-sm ${
+                          isCancelable
+                            ? "bg-red-600 hover:bg-red-500 text-white"
+                            : "bg-gray-300 text-gray-600 cursor-not-allowed"
+                        }`}
+                        disabled={!isCancelable}
+                      >
+                        Cancel
+                      </button>
+                      {!isCancelable && (
+                        <span className="text-xs text-gray-400">
+                          Must be 1+ day before check-in.
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {editBooking && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-60 z-50">
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full text-gray-900 space-y-4">
+            <h3 className="text-xl font-bold">Update Booking Date</h3>
+            <div>
+              <label className="block font-medium">Check-In</label>
+              <DatePicker
+                selected={newCheckIn}
+                onChange={(date) => setNewCheckIn(date)}
+                className="border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-300 w-full"
+              />
+            </div>
+            <div>
+              <label className="block font-medium">Check-Out</label>
+              <DatePicker
+                selected={newCheckOut}
+                onChange={(date) => setNewCheckOut(date)}
+                className="border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-300 w-full"
+              />
+            </div>
+            <div className="flex justify-end space-x-3 mt-4">
+              <button
+                onClick={() => setEditBooking(null)}
+                className="bg-gray-300 rounded-full px-3 py-1 text-gray-800 hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleUpdateDate}
+                className="bg-green-600 rounded-full px-3 py-1 text-white hover:bg-green-500"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <ToastContainer position="top-right" />
     </div>
   );

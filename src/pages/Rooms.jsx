@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function Rooms() {
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchRooms = async () => {
@@ -27,7 +28,10 @@ function Rooms() {
       <h1 className="text-3xl font-bold text-center mb-8">Available Rooms</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
         {rooms.map((room) => (
-          <div key={room._id} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition">
+          <div 
+          onClick={() => navigate(`/roomdetails/${room._id}`)}
+          key={room._id} 
+          className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition cursor-pointer">
             <img
               src={room.gallery?.[0] || "https://via.placeholder.com/400x300"}
               alt={room.hotelName}

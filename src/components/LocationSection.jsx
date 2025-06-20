@@ -1,9 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-// Fix default icon issue
+// ✅ Fix default marker icon issue
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.3/dist/images/marker-icon-2x.png',
@@ -11,44 +11,50 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.3/dist/images/marker-shadow.png',
 });
 
-// Sample hotel data
-const hotelLocations = [
-  {
-    id: 1,
-    name: "Sea View Hotel",
-    coords: [21.4272, 92.0058],
-    image: "https://source.unsplash.com/400x200/?beach,hotel",
-  },
-  {
-    id: 2,
-    name: "Hilltop Retreat",
-    coords: [22.3569, 91.7832],
-    image: "https://source.unsplash.com/400x200/?hill,hotel",
-  },
-  {
-    id: 3,
-    name: "Urban Oasis",
-    coords: [23.8103, 90.4125],
-    image: "https://source.unsplash.com/400x200/?city,hotel",
-  },
-];
-
-// Component to fit map to marker bounds
+// ✅ Fit map bounds to all markers
 const FitBounds = ({ locations }) => {
   const map = useMap();
-
   useEffect(() => {
-    const bounds = L.latLngBounds(locations.map((loc) => loc.coords));
-    map.fitBounds(bounds, { padding: [50, 50] });
+    if (locations.length) {
+      const bounds = L.latLngBounds(locations.map((loc) => loc.coords));
+      map.fitBounds(bounds, { padding: [50, 50] });
+    }
   }, [locations, map]);
-
   return null;
 };
 
 const LocationSection = ({ darkMode }) => {
+  const [locations, setLocations] = useState([]);
+
+  useEffect(() => {
+    fetch('http://localhost:5000/api/rooms')
+      .then((res) => res.json())
+      .then((data) => {
+        const formatted = data
+          .filter((room) => room.Latitude && room.Longitude) // or room.latitude/room.longitude if normalized
+          .map((room) => {
+            // Parse lat/lng into numbers and trim whitespace
+            const lat = parseFloat(room.Latitude.toString().trim());
+            const lon = parseFloat(room.Longitude.toString().trim());
+
+            return {
+              id: room._id,
+              name: room.hotelName,
+              coords: [lat, lon],
+              image: room.gallery?.[0] || 'https://source.unsplash.com/400x200/?hotel',
+            };
+          })
+          // Filter out hotels that failed to parse
+          .filter((hotel) => !isNaN(hotel.coords[0]) && !isNaN(hotel.coords[1]));
+
+        setLocations(formatted);
+      })
+      .catch((err) => console.error('Error fetching rooms:', err));
+  }, []);
+
   return (
     <section
-      className={`py-20 px-4 transition-colors duration-500 ${
+      className={`py-20 px-4 transition-colors ${
         darkMode ? 'bg-[#1d130c]' : 'bg-amber-50'
       }`}
     >
@@ -61,19 +67,19 @@ const LocationSection = ({ darkMode }) => {
           📍 Our Hotel Locations
         </h2>
         <p className={`text-sm ${darkMode ? 'text-[#f5deb3]' : 'text-gray-700'}`}>
-          Explore our hotel branches across major destinations in Bangladesh.
+          Explore our hotel branches across major destinations.
         </p>
       </div>
 
       <div className="max-w-6xl mx-auto rounded-xl overflow-hidden shadow-md">
         <MapContainer
-          className="h-[500px] w-full z-10"
-          center={[23.685, 90.3563]}
+          className="h-[300px] w-full z-10"
+          center={[23.685, 90.3563]} // Fallback center
           zoom={7}
           scrollWheelZoom={true}
         >
           <TileLayer
-            attribution='&copy; OpenStreetMap contributors'
+            attribution="&copy; OpenStreetMap contributors"
             url={
               darkMode
                 ? 'https://tiles.stadiamaps.com/tiles/alidade_dark/{z}/{x}/{y}{r}.png'
@@ -81,9 +87,10 @@ const LocationSection = ({ darkMode }) => {
             }
           />
 
-          <FitBounds locations={hotelLocations} />
+          {/* Fit map to all hotel markers */}
+          <FitBounds locations={locations} />
 
-          {hotelLocations.map((hotel) => (
+          {locations.map((hotel) => (
             <Marker key={hotel.id} position={hotel.coords}>
               <Popup>
                 <div className="text-sm">
