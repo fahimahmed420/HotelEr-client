@@ -13,7 +13,7 @@ const Navbar = () => {
   // Set body theme
   useEffect(() => {
     document.body.className = darkMode
-      ? 'bg-[#1d130c] text-[#f5deb3]'
+      ? 'bg-[#1d130c] text-orange-500'
       : 'bg-white text-[#1a1a1a]';
   }, [darkMode]);
 

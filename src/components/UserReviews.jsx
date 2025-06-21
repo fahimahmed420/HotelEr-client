@@ -13,7 +13,7 @@ const fadeInUp = {
 
 const UserReviews = ({ darkMode = false, reviews = [] }) => {
   // Color styles based on dark mode
-  const bg = darkMode ? 'bg-[#0e0e0e]' : 'bg-orange-50';
+  
   const text = darkMode ? 'text-blue-200' : 'text-black';
   const cardBg = darkMode ? 'bg-[#1c1c1c]' : 'bg-white';
   const subText = darkMode ? 'text-blue-300' : 'text-gray-500';
@@ -24,10 +24,10 @@ const UserReviews = ({ darkMode = false, reviews = [] }) => {
     .slice(0, 3);
 
   return (
-    <section className={`py-20 px-4 ${bg} ${text}`}>
+    <section className={`py-20 px-4 bg-gray-900 ${text}`}>
       <div className="max-w-6xl mx-auto text-center mb-10">
-        <h2 className="text-4xl font-bold mb-2">💬 What Our Guests Say</h2>
-        <p className={`text-sm ${subText}`}>Real reviews from real guests</p>
+        <h2 className="text-4xl font-bold mb-2 text-orange-500">💬 What Our Guests Say</h2>
+        <p className={`text-sm text-gray-300`}>Real reviews from real guests</p>
       </div>
 
       {top3Reviews.length === 0 ? (

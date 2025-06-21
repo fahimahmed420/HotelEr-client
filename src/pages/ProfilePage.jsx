@@ -38,7 +38,6 @@ const ProfilePage = () => {
           setAvatar(data.photoURL || "https://i.pravatar.cc/100");
           setPhoneNumber(data.phoneNumber || "");
           setLocation(data.location || "");
-          setCountry(data.country || "USA");
           setPostalCode(data.postalCode || "");
           setTaxId(data.taxId || "");
           setCompany(data.company || "");

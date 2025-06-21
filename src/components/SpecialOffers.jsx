@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 const Countdown = ({ deadline, onExpire }) => {
   const [timeLeft, setTimeLeft] = useState('');
@@ -32,7 +31,7 @@ const SpecialOffers = ({ darkMode }) => {
   const allExpired = honeymoonExpired && summerDealExpired;
 
   return (
-    <section className={`py-20 px-4 ${darkMode ? 'bg-[#211612]' : 'bg-pink-50'}`}>
+    <section className={`py-20 px-4 ${darkMode ? 'bg-[#211612]' : 'bg-white/90'}`}>
 
       <div className="max-w-6xl mx-auto text-center mb-10">
         <h2 className="text-4xl font-bold mb-4">🎉 Special Offers</h2>
@@ -55,8 +54,8 @@ const SpecialOffers = ({ darkMode }) => {
                 alt="Honeymoon Package"
                 className="h-56 rounded-lg"
               />
-              <h3 className="text-lg font-semibold mt-3">Honeymoon Package</h3>
-              <p>2 nights, romantic dinner, spa for 2</p>
+              <h3 className="text-lg font-semibold mt-3 text-white">Honeymoon Package</h3>
+              <p className='text-white'>2 nights, romantic dinner, spa for 2</p>
               <Countdown
                 deadline="2025-07-01T00:00:00"
                 onExpire={() => setHoneymoonExpired(true)}
@@ -73,8 +72,8 @@ const SpecialOffers = ({ darkMode }) => {
                 alt="Summer Group Deal"
                 className="h-56 rounded-lg"/>
 
-              <h3 className="text-lg font-semibold mt-3">Summer Group Deal</h3>
-              <p>15% off for 4+ guests, includes breakfast</p>
+              <h3 className="text-lg font-semibold mt-3 text-white">Summer Group Deal</h3>
+              <p className='text-white'>15% off for 4+ guests, includes breakfast</p>
               <Countdown
                 deadline="2025-07-15T00:00:00"
                 onExpire={() => setSummerDealExpired(true)}/>
