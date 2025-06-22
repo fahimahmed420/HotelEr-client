@@ -18,18 +18,27 @@ function MyBookings() {
   const { user } = useContext(AuthContext);
 
   useEffect(() => {
-    if (!user?.email) return;
+    if (!user?.email || !user?.accessToken) return;
 
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const res = await fetch(`${BASE_URL}/api/mybookings?email=${user.email}`);
+        const res = await fetch(
+          `${BASE_URL}/api/mybookings?email=${user.email}`,
+          {
+            headers: {
+              Authorization: `Bearer ${user.accessToken}`,
+            },
+          }
+        );
         const data = await res.json();
         setBookings(data);
 
-        const roomIds = [...new Set(data.map(b => b.roomId))];
+        const roomIds = [...new Set(data.map((b) => b.roomId))];
         const roomResponses = await Promise.all(
-          roomIds.map(id => fetch(`${BASE_URL}/api/rooms/${id}`).then(r => r.json()))
+          roomIds.map((id) =>
+            fetch(`${BASE_URL}/api/rooms/${id}`).then((r) => r.json())
+          )
         );
         const roomData = {};
         roomIds.forEach((id, i) => {
@@ -47,20 +56,27 @@ function MyBookings() {
   }, [user]);
 
   const cancelBooking = async (booking) => {
-    if (!window.confirm("Are you sure you want to cancel this booking?")) return;
+    if (!window.confirm("Are you sure you want to cancel this booking?"))
+      return;
 
     try {
       const res = await fetch(`${BASE_URL}/api/bookings/${booking._id}`, {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${user.accessToken}`,
+        },
       });
       if (!res.ok) throw new Error("Cancel failed");
 
-      // Try updating room availability
       await fetch(`${BASE_URL}/api/rooms/${booking.roomId}/availability`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user.accessToken}`,
+        },
         body: JSON.stringify({ available: true }),
       });
+
       setBookings((prev) => prev.filter((b) => b._id !== booking._id));
       toast.success("Booking canceled successfully.");
     } catch (error) {
@@ -68,13 +84,13 @@ function MyBookings() {
       toast.error("Failed to cancel booking.");
     }
   };
-  
+
   const openEditModal = (booking) => {
     setEditBooking(booking);
     setNewCheckIn(new Date(booking.checkIn));
     setNewCheckOut(new Date(booking.checkOut));
   };
-  
+
   const handleUpdateDate = async () => {
     if (!editBooking) return;
 
@@ -86,21 +102,37 @@ function MyBookings() {
     try {
       const res = await fetch(`${BASE_URL}/api/bookings/${editBooking._id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ checkIn: newCheckIn, checkOut: newCheckOut }),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user.accessToken}`,
+        },
+        body: JSON.stringify({
+          checkIn: newCheckIn,
+          checkOut: newCheckOut,
+        }),
       });
       if (!res.ok) throw new Error("Update failed");
 
       toast.success("Booking updated successfully");
       setEditBooking(null);
-      const updated = await fetch(`${BASE_URL}/api/mybookings?email=${user.email}`).then(r => r.json());
+
+      // Refetch updated bookings
+      const updated = await fetch(
+        `${BASE_URL}/api/mybookings?email=${user.email}`,
+        {
+          headers: {
+            Authorization: `Bearer ${user.accessToken}`,
+          },
+        }
+      ).then((r) => r.json());
+
       setBookings(updated);
     } catch (error) {
       console.error(error);
       toast.error("Failed to update booking.");
     }
   };
-  
+
   return (
     <div className="p-6 max-w-6xl mx-auto py-20 text-gray-900 min-h-screen">
       <h1 className="text-3xl font-bold text-center md:text-left">My Bookings</h1>
@@ -128,7 +160,12 @@ function MyBookings() {
               {bookings.map((booking) => {
                 const room = rooms[booking.roomId] || {};
                 const isCancelable =
-                  new Date() < new Date(new Date(booking.checkIn).setDate(new Date(booking.checkIn).getDate() - 1));
+                  new Date() <
+                  new Date(
+                    new Date(booking.checkIn).setDate(
+                      new Date(booking.checkIn).getDate() - 1
+                    )
+                  );
                 return (
                   <tr
                     key={booking._id}

@@ -24,7 +24,6 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (!e.target.closest('.dropdown-wrapper')) {
@@ -81,7 +80,6 @@ const Navbar = () => {
           })}
         </div>
 
-        {/* Right Controls */}
         <div className="flex items-center gap-3 relative dropdown-wrapper">
           {/* Theme Toggle */}
           <button

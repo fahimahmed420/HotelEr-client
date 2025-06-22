@@ -98,7 +98,7 @@ function AboutUs() {
             >
               support@hoteler.com
             </a>
-            . We’re here to help.
+            . We're here to help.
           </p>
         </div>
       </div>

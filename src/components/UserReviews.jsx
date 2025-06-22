@@ -12,7 +12,6 @@ const fadeInUp = {
 };
 
 const UserReviews = ({ darkMode = false, reviews = [] }) => {
-  // Color styles based on dark mode
   
   const text = darkMode ? 'text-blue-200' : 'text-black';
   const cardBg = darkMode ? 'bg-[#1c1c1c]' : 'bg-white';

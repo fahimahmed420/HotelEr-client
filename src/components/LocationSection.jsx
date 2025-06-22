@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-// ✅ Fix default marker icon issue
+// Fix default marker icon issue
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.3/dist/images/marker-icon-2x.png',
@@ -11,7 +11,6 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.3/dist/images/marker-shadow.png',
 });
 
-// ✅ Fit map bounds to all markers
 const FitBounds = ({ locations }) => {
   const map = useMap();
   useEffect(() => {
@@ -31,9 +30,9 @@ const LocationSection = ({ darkMode }) => {
       .then((res) => res.json())
       .then((data) => {
         const formatted = data
-          .filter((room) => room.Latitude && room.Longitude) // or room.latitude/room.longitude if normalized
+          .filter((room) => room.Latitude && room.Longitude) 
           .map((room) => {
-            // Parse lat/lng into numbers and trim whitespace
+           
             const lat = parseFloat(room.Latitude.toString().trim());
             const lon = parseFloat(room.Longitude.toString().trim());
 
@@ -73,7 +72,7 @@ const LocationSection = ({ darkMode }) => {
       <div className="max-w-6xl mx-auto rounded-xl overflow-hidden shadow-md">
         <MapContainer
           className="h-[300px] w-full z-10"
-          center={[23.685, 90.3563]} // Fallback center
+          center={[23.685, 90.3563]}
           zoom={7}
           scrollWheelZoom={true}>
           <TileLayer

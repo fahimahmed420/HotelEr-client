@@ -3,6 +3,7 @@ import {
   getAuth,
   updateEmail,
   updatePassword,
+  updateProfile,
   reauthenticateWithCredential,
   EmailAuthProvider,
 } from "firebase/auth";
@@ -31,42 +32,39 @@ const ProfilePage = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/users/${user.email}`);
+        const res = await fetch(`http://localhost:5000/api/users/${user.email}`, {
+          headers: {
+            Authorization: `Bearer ${user.accessToken}`,
+          },
+        });
         const data = await res.json();
-
         if (data) {
-          setAvatar(data.photoURL || "https://i.pravatar.cc/100");
           setPhoneNumber(data.phoneNumber || "");
           setLocation(data.location || "");
           setPostalCode(data.postalCode || "");
           setTaxId(data.taxId || "");
           setCompany(data.company || "");
           setBio(data.bio || "");
-
-          // const nameParts = (data.displayName || "").split(" ");
-          // setFirstName(nameParts[0] || "");
-          // setLastName(nameParts[1] || "");
+          if (data.photoURL) setAvatar(data.photoURL);
         }
       } catch (err) {
         console.error("Failed to fetch profile", err);
+        setError("Failed to fetch profile.");
       }
     };
 
     if (user?.email) fetchProfile();
   }, [user?.email]);
 
-
   const handleSaveProfile = async () => {
     const updatedUser = {
       photoURL: avatar,
-      phoneNumber: document.querySelector('input[placeholder="Phone"]')?.value || "",
-      location: document.querySelector('input[placeholder="City/State"]')?.value || "",
-      country: document.querySelector('select[placeholder="Country"]')?.value || "",
-      postalCode: document.querySelector('input[placeholder="Postal Code"]')?.value || "",
-      taxId: document.querySelector('input[placeholder="Tax ID"]')?.value || "",
-      company: document.querySelector('input[placeholder="Company Name"]')?.value || "",
-      language: document.querySelector('select[placeholder="Language"]')?.value || "",
-      bio: document.querySelector('textarea')?.value || "",
+      phoneNumber,
+      location,
+      postalCode,
+      taxId,
+      company,
+      bio,
       firstName,
       lastName,
       email: user.email,
@@ -77,6 +75,7 @@ const ProfilePage = () => {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${user.accessToken}`,
         },
         body: JSON.stringify(updatedUser),
       });
@@ -89,8 +88,55 @@ const ProfilePage = () => {
         setError("Failed to update profile.");
       }
     } catch (err) {
-      setError("An error occurred.");
       console.error(err);
+      setError("An error occurred while saving profile.");
+    }
+  };
+
+  const handleSaveAvatar = async () => {
+    if (!newAvatar) return;
+    try {
+      // Update Firebase user profile
+      await updateProfile(auth.currentUser, {
+        photoURL: newAvatar,
+      });
+
+      setAvatar(newAvatar);
+      setNewAvatar(null);
+      setShowAvatarActions(false);
+
+      // Update backend
+      const updatedUser = {
+        photoURL: newAvatar,
+        phoneNumber,
+        location,
+        postalCode,
+        taxId,
+        company,
+        bio,
+        firstName,
+        lastName,
+        email: user.email,
+      };
+
+      const res = await fetch(`http://localhost:5000/api/users/${user.email}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user.accessToken}`,
+        },
+        body: JSON.stringify(updatedUser),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setMessage("Avatar updated successfully!");
+      } else {
+        setError("Failed to update avatar.");
+      }
+    } catch (err) {
+      console.error("Error updating avatar", err);
+      setError("Failed to update avatar.");
     }
   };
 
@@ -107,7 +153,7 @@ const ProfilePage = () => {
 
     const reauthenticate = async () => {
       if (!currentPassword) {
-        setError("Please enter your current password to confirm.");
+        setError("Please enter your current password.");
         return false;
       }
       try {
@@ -298,10 +344,7 @@ const ProfilePage = () => {
                     />
                     <button
                       className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100 transition"
-                      onClick={() => {
-                        setAvatar(newAvatar);
-                        setNewAvatar(null);
-                      }}
+                      onClick={handleSaveAvatar}
                     >
                       Save Avatar
                     </button>
@@ -388,7 +431,7 @@ const ProfilePage = () => {
                     rows="4"
                     className="w-full p-2 rounded mt-1 bg-gray-50 shadow-inner"
                     placeholder="Bio"
-                    defaultValue={bio || "Student..."}
+                    defaultValue={bio}
                     onChange={(e) => setBio(e.target.value)}
                     disabled={!isEditable} />
                 </div>

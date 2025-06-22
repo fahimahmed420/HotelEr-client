@@ -30,7 +30,7 @@ function Rooms() {
     fetchRooms();
   }, []);
 
-  if (loading) return <div className="text-center text-white py-20">Loading rooms...</div>;
+  if (loading) return <div className="text-center text-white py-20"><span className="loading loading-spinner text-error"></span>Loading rooms<span className="loading loading-spinner text-error"></span></div>;
 
   return (
     <div className="min-h-screen bg-gray-100 py-20 px-4">
