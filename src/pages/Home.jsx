@@ -35,10 +35,16 @@ const Home = () => {
         }
     }, []);
 
-    if (loading) return <p className="py-10 text-center">Loading reviews...</p>;
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-white">
+                <h1 className="text-4xl font-bold text-gray-700 animate-pulse">Loading…</h1>
+            </div>
+        );
+    }
 
     return (
-        <>
+        <div>
             {showPopup && <OfferPopup onClose={() => setShowPopup(false)} />}
             <BannerSection />
             <FeaturedRooms />
@@ -47,7 +53,7 @@ const Home = () => {
             <Amenities />
             <UserReviews darkMode={false} reviews={reviews} />
             <LocationSection />
-        </>
+        </div>
     );
 };
 
