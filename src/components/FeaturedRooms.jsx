@@ -6,7 +6,7 @@ export default function FeaturedRooms() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/top-rooms-by-review')
+    fetch('https://hotel-booking-server-side-ruddy.vercel.app/api/top-rooms-by-review')
       .then((res) => res.json())
       .then((data) => {
         const sortedRooms = data

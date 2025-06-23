@@ -14,7 +14,7 @@ const Home = () => {
     const [showPopup, setShowPopup] = useState(false);
 
     useEffect(() => {
-        fetch('http://localhost:5000/api/reviews')
+        fetch('https://hotel-booking-server-side-ruddy.vercel.app/api/reviews')
             .then((res) => res.json())
             .then((data) => {
                 setReviews(data);

@@ -26,7 +26,7 @@ const LocationSection = ({ darkMode }) => {
   const [locations, setLocations] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/rooms')
+    fetch('https://hotel-booking-server-side-ruddy.vercel.app/api/rooms')
       .then((res) => res.json())
       .then((data) => {
         const formatted = data

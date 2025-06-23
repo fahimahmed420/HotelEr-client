@@ -1,12 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import {
-  getAuth,
-  updateEmail,
-  updatePassword,
-  updateProfile,
-  reauthenticateWithCredential,
-  EmailAuthProvider,
-} from "firebase/auth";
+import {getAuth,updateEmail,updatePassword,updateProfile,reauthenticateWithCredential,EmailAuthProvider,} from "firebase/auth";
 import { FaCheckCircle, FaCcVisa, FaCcMastercard, FaPaypal } from "react-icons/fa";
 import { AuthContext } from "../context/AuthContext";
 
@@ -32,7 +25,7 @@ const ProfilePage = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/users/${user.email}`, {
+        const res = await fetch(`https://hotel-booking-server-side-ruddy.vercel.app/api/users/${user.email}`, {
           headers: {
             Authorization: `Bearer ${user.accessToken}`,
           },
@@ -71,7 +64,7 @@ const ProfilePage = () => {
     };
 
     try {
-      const res = await fetch(`http://localhost:5000/api/users/${user.email}`, {
+      const res = await fetch(`https://hotel-booking-server-side-ruddy.vercel.app/api/users/${user.email}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -119,7 +112,7 @@ const ProfilePage = () => {
         email: user.email,
       };
 
-      const res = await fetch(`http://localhost:5000/api/users/${user.email}`, {
+      const res = await fetch(`https://hotel-booking-server-side-ruddy.vercel.app/api/users/${user.email}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

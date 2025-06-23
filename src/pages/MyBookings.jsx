@@ -5,7 +5,7 @@ import { AuthContext } from "../context/AuthContext";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const BASE_URL = import.meta.env.VITE_API_URL || "https://hotel-booking-server-side-ruddy.vercel.app";
 
 function MyBookings() {
   const [bookings, setBookings] = useState([]);

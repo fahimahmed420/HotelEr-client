@@ -11,7 +11,7 @@ function Rooms() {
   const fetchRooms = async () => {
     setLoading(true);
     try {
-      let url = "http://localhost:5000/api/rooms";
+      let url = "https://hotel-booking-server-side-ruddy.vercel.app/api/rooms";
       if (minPrice && maxPrice) {
         url += `?minPrice=${minPrice}&maxPrice=${maxPrice}`;
       }

@@ -5,6 +5,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import Modal from "react-modal";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+// eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
 import Rating from "react-rating-stars-component";
 import { AuthContext } from "../context/AuthContext";
@@ -46,7 +47,7 @@ function RoomDetails() {
 
   useEffect(() => {
     if (user?.email) {
-      fetch(`http://localhost:5000/api/bookings/check?roomId=${id}&email=${user.email}`)
+      fetch(`https://hotel-booking-server-side-ruddy.vercel.app/api/bookings/check?roomId=${id}&email=${user.email}`)
         .then(res => res.json())
         .then(data => setHasBooked(data.hasBooked))
         .catch(console.error);
@@ -54,14 +55,14 @@ function RoomDetails() {
   }, [id, user]);
 
   useEffect(() => {
-    fetch(`http://localhost:5000/api/rooms/${id}`)
+    fetch(`https://hotel-booking-server-side-ruddy.vercel.app/api/rooms/${id}`)
       .then(res => res.json())
       .then(setRoom)
       .catch(err => console.error("Failed to fetch room:", err));
   }, [id]);
 
   useEffect(() => {
-    fetch(`http://localhost:5000/api/reviews/${id}`)
+    fetch(`https://hotel-booking-server-side-ruddy.vercel.app/api/reviews/${id}`)
       .then(res => res.json())
       .then(setReviews)
       .catch(console.error);
@@ -69,7 +70,7 @@ function RoomDetails() {
 
   const fetchBookedDates = () => {
     setIsLoadingBookedDates(true);
-    fetch(`http://localhost:5000/api/bookings/dates/${id}`)
+    fetch(`https://hotel-booking-server-side-ruddy.vercel.app/api/bookings/dates/${id}`)
       .then(res => res.json())
       .then(data => {
         const parsed = data.map(({ start, end }) => ({
@@ -154,7 +155,7 @@ function RoomDetails() {
     };
 
     try {
-      const res = await fetch("http://localhost:5000/api/bookings", {
+      const res = await fetch("https://hotel-booking-server-side-ruddy.vercel.app/api/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(booking),
@@ -430,7 +431,7 @@ function RoomDetails() {
                       avatar: user.photoURL || `https://i.pravatar.cc/150?u=${user.email}`
                     };
 
-                    const res = await fetch("http://localhost:5000/api/reviews", {
+                    const res = await fetch("https://hotel-booking-server-side-ruddy.vercel.app/api/reviews", {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
                       body: JSON.stringify({
