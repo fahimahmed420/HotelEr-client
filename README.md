@@ -2,6 +2,8 @@
 
 **HotelEr** is a full-featured hotel booking web application built with **React**, **Firebase**, **Express**, and **MongoDB**. It offers seamless user experience for exploring rooms, making reservations, managing bookings, and interacting with a dynamic UI.
 
+🌐 **Live Site**: [https://assignment-11-59a34.web.app/](https://assignment-11-59a34.web.app/)
+
 ## 🌟 Features
 
 - 🔐 **Authentication** (Email/Password & Google login) using Firebase
