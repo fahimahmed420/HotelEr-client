@@ -3,7 +3,6 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "../styles/datepicker-custom.css";
 import { useNavigate } from "react-router-dom";
-// eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -14,10 +13,29 @@ const BannerSection = () => {
   const [guests, setGuests] = useState(2);
   const [bgVisible, setBgVisible] = useState(false);
   const sectionRef = useRef(null);
-  const [index, setIndex] = useState(0);
   const navigate = useNavigate();
 
-  const images = ["Everest.jpeg"];
+  // Theme state synced with data-theme attribute
+  const [theme, setTheme] = useState(
+    document.documentElement.getAttribute("data-theme") || "light"
+  );
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      const currentTheme =
+        document.documentElement.getAttribute("data-theme") || "light";
+      setTheme(currentTheme);
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme"],
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  const bgImage = "Everest.jpeg";
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -31,13 +49,6 @@ const BannerSection = () => {
     );
     if (sectionRef.current) observer.observe(sectionRef.current);
   }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIndex((prev) => (prev + 1) % images.length);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, [images.length]);
 
   const handleCheckAvailability = async () => {
     try {
@@ -58,6 +69,29 @@ const BannerSection = () => {
     }
   };
 
+  const backgroundFilter =
+    theme === "dark" ? "brightness(0.55)" : "brightness(0.85)";
+  const textShadow = "0 2px 6px rgba(0,0,0,0.7)";
+  const subTextShadow = "0 1px 4px rgba(0,0,0,0.6)";
+
+  // Button styles shared by both buttons
+  const buttonStyles = {
+    background: "linear-gradient(to right, var(--primary-600), var(--primary-500))",
+    color: theme === "dark" ? "var(--text-900)" : "var(--text-950)",
+    boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
+    transition: "background 0.3s ease",
+  };
+
+  // Hover effect function for buttons
+  const handleButtonHover = (e) => {
+    e.currentTarget.style.background =
+      "linear-gradient(to right, var(--primary-500), var(--primary-600))";
+  };
+  const handleButtonLeave = (e) => {
+    e.currentTarget.style.background =
+      "linear-gradient(to right, var(--primary-600), var(--primary-500))";
+  };
+
   return (
     <section
       ref={sectionRef}
@@ -68,15 +102,17 @@ const BannerSection = () => {
           bgVisible ? "opacity-100" : "opacity-0"
         }`}
         style={{
-          backgroundImage: bgVisible ? `url(${images[index]})` : "none",
+          backgroundImage: bgVisible ? `url(${bgImage})` : "none",
           backgroundAttachment: "fixed",
+          filter: backgroundFilter,
         }}
       />
-      <div className="relative z-10 flex flex-col items-center justify-center text-center text-white max-w-3xl w-full p-4">
+      <div
+        className="relative z-10 flex flex-col items-center justify-center text-center max-w-3xl w-full p-4"
+        style={{ color: `var(--text-50)`, textShadow }}
+      >
         <motion.h1
-          className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight 
-             bg-gradient-to-r from-blue-300 via-purple-300 to-pink-300
-             bg-clip-text text-transparent animate-[shimmer_3s_infinite]"
+          className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight"
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1 }}
@@ -85,11 +121,11 @@ const BannerSection = () => {
         </motion.h1>
 
         <motion.p
-          className="mt-3 text-sm sm:text-base 
-             text-gray-100 drop-shadow-[0_0_12px_#ffffff80]"
+          className="mt-3 text-sm sm:text-base"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.3 }}
+          style={{ color: `var(--text-100)`, textShadow: subTextShadow }}
         >
           Find the best rooms and special deals for your next trip.
         </motion.p>
@@ -97,19 +133,25 @@ const BannerSection = () => {
         <motion.button
           onClick={() => navigate("/rooms")}
           whileHover={{ scale: 1.03 }}
-          className="mt-4 px-6 py-3 rounded-full font-semibold text-white text-sm 
-                     bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 
-                     shadow-lg transition-all"
+          style={buttonStyles}
+          onMouseEnter={handleButtonHover}
+          onMouseLeave={handleButtonLeave}
+          className="mt-4 px-6 py-3 rounded-full font-semibold text-sm"
         >
           View All Rooms
         </motion.button>
 
         {/* Booking Form */}
         <motion.div
-          className="bg-white text-black p-6 rounded-2xl shadow-lg flex flex-wrap gap-4 justify-center items-stretch sm:items-end mt-6"
+          className="p-6 rounded-2xl shadow-lg flex flex-wrap gap-4 justify-center items-stretch sm:items-end mt-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5, duration: 1 }}
+          style={{
+            backgroundColor:
+              theme === "dark" ? "var(--background-900)" : "white",
+            color: theme === "dark" ? "var(--text-100)" : "black",
+          }}
         >
           <div className="flex flex-col text-left">
             <label className="font-medium mb-1 text-sm">Check-In</label>
@@ -151,7 +193,10 @@ const BannerSection = () => {
           <motion.button
             onClick={handleCheckAvailability}
             whileHover={{ scale: 1.03 }}
-            className="bg-gradient-to-r from-gray-800 to-gray-600 text-white px-6 py-3 rounded-full font-semibold text-sm hover:from-gray-600 hover:to-gray-800 transition"
+            style={buttonStyles}
+            onMouseEnter={handleButtonHover}
+            onMouseLeave={handleButtonLeave}
+            className="mt-auto px-6 py-3 rounded-full font-semibold text-sm"
           >
             CHECK AVAILABILITY
           </motion.button>
