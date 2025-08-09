@@ -30,9 +30,9 @@ const LocationSection = ({ darkMode }) => {
       .then((res) => res.json())
       .then((data) => {
         const formatted = data
-          .filter((room) => room.Latitude && room.Longitude) 
+          .filter((room) => room.Latitude && room.Longitude)
           .map((room) => {
-           
+
             const lat = parseFloat(room.Latitude.toString().trim());
             const lon = parseFloat(room.Longitude.toString().trim());
 
@@ -52,38 +52,33 @@ const LocationSection = ({ darkMode }) => {
   }, []);
 
   return (
-    <section
-      className={`py-20 px-4 transition-colors ${
-        darkMode ? 'bg-[#1d130c]' : 'bg-amber-50'
-      }`}
-    >
-      <div className="max-w-6xl mx-auto text-center mb-10">
-        <h2
-          className={`text-4xl font-bold mb-4 ${
-            darkMode ? 'text-rose-300' : 'text-orange-500'
-          }`}>
-           Our Hotel Locations
+    <section className={`py-20 transition-colors ${darkMode ? 'bg-[#1d130c]' : 'bg-amber-50'}`}>
+      <div className="mx-auto text-center mb-10 max-w-7xl px-4">
+        <h2 className={`text-4xl font-bold mb-4 ${darkMode ? 'text-rose-300' : 'text-orange-500'}`}>
+          Our Hotel Locations
         </h2>
         <p className={`text-sm ${darkMode ? 'text-[#f5deb3]' : 'text-gray-700'}`}>
           Explore our hotel branches across major destinations.
         </p>
       </div>
 
-      <div className="max-w-6xl mx-auto rounded-xl overflow-hidden shadow-md">
+     <div className='max-w-7xl px-4 mx-auto'>
+       <div className="rounded-xl overflow-hidden shadow-md">
         <MapContainer
-          className="h-[300px] w-full z-10"
+          className="w-full h-[300px] z-10"
           center={[23.685, 90.3563]}
           zoom={7}
-          scrollWheelZoom={true}>
+          scrollWheelZoom={true}
+        >
           <TileLayer
             attribution="&copy; OpenStreetMap contributors"
             url={
               darkMode
-                ? 'https://tiles.stadiamaps.com/tiles/alidade_dark/{z}/{x}/{y}{r}.png'
-                : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-            }/>
+                ? "https://tiles.stadiamaps.com/tiles/alidade_dark/{z}/{x}/{y}{r}.png"
+                : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            }
+          />
 
-          {/* Fit map to all hotel markers */}
           <FitBounds locations={locations} />
 
           {locations.map((hotel) => (
@@ -102,7 +97,9 @@ const LocationSection = ({ darkMode }) => {
           ))}
         </MapContainer>
       </div>
+     </div>
     </section>
+
   );
 };
 

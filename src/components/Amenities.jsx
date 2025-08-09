@@ -16,7 +16,7 @@ const Amenities = ({ darkMode }) => {
 
   return (
     <section className={`py-20 px-4 ${darkMode ? 'bg-[#1c1814]' : 'bg-amber-50'}`}>
-      <div className="max-w-6xl mx-auto text-center mb-10">
+      <div className="max-w-7xl px-4 mx-auto text-center mb-10">
         <h2 className="text-4xl font-bold mb-4"> Amenities & Services</h2>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-4xl mx-auto text-center">

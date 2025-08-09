@@ -33,7 +33,7 @@ const SpecialOffers = ({ darkMode }) => {
   return (
     <section className={`py-20 px-4 ${darkMode ? 'bg-[#211612]' : 'bg-white/90'}`}>
 
-      <div className="max-w-6xl mx-auto text-center mb-10">
+      <div className="max-w-7xl px-4 mx-auto text-center mb-10">
         <h2 className="text-4xl font-bold mb-4">🎉 Special Offers</h2>
         <p className="text-sm">Grab these deals before time runs out!</p>
       </div>

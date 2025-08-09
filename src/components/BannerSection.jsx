@@ -15,7 +15,6 @@ const BannerSection = () => {
   const sectionRef = useRef(null);
   const navigate = useNavigate();
 
-  // Theme state synced with data-theme attribute
   const [theme, setTheme] = useState(
     document.documentElement.getAttribute("data-theme") || "light"
   );
@@ -74,22 +73,30 @@ const BannerSection = () => {
   const textShadow = "0 2px 6px rgba(0,0,0,0.7)";
   const subTextShadow = "0 1px 4px rgba(0,0,0,0.6)";
 
-  // Button styles shared by both buttons
+  // Reversed button styles:
+  // Light theme: dark gradient background, light text
+  // Dark theme: light gradient background, dark text
   const buttonStyles = {
-    background: "linear-gradient(to right, var(--primary-600), var(--primary-500))",
-    color: theme === "dark" ? "var(--text-900)" : "var(--text-950)",
+    background:
+      theme === "light"
+        ? "linear-gradient(to right, var(--primary-800), var(--primary-700))"
+        : "linear-gradient(to right, var(--primary-300), var(--primary-200))",
+    color: theme === "light" ? "var(--text-50)" : "var(--text-900)",
     boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
     transition: "background 0.3s ease",
   };
 
-  // Hover effect function for buttons
   const handleButtonHover = (e) => {
     e.currentTarget.style.background =
-      "linear-gradient(to right, var(--primary-500), var(--primary-600))";
+      theme === "light"
+        ? "linear-gradient(to right, var(--primary-700), var(--primary-800))"
+        : "linear-gradient(to right, var(--primary-200), var(--primary-300))";
   };
   const handleButtonLeave = (e) => {
     e.currentTarget.style.background =
-      "linear-gradient(to right, var(--primary-600), var(--primary-500))";
+      theme === "light"
+        ? "linear-gradient(to right, var(--primary-800), var(--primary-700))"
+        : "linear-gradient(to right, var(--primary-300), var(--primary-200))";
   };
 
   return (
@@ -102,13 +109,13 @@ const BannerSection = () => {
           bgVisible ? "opacity-100" : "opacity-0"
         }`}
         style={{
-          backgroundImage: bgVisible ? `url(${bgImage})` : "none",
+          backgroundImage: bgImage ? `url(${bgImage})` : "none",
           backgroundAttachment: "fixed",
           filter: backgroundFilter,
         }}
       />
       <div
-        className="relative z-10 flex flex-col items-center justify-center text-center max-w-3xl w-full p-4"
+        className="relative z-10 flex flex-col items-center justify-center text-center max-w-7xl px-4 w-full p-4"
         style={{ color: `var(--text-50)`, textShadow }}
       >
         <motion.h1

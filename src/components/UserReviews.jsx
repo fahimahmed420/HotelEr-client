@@ -23,8 +23,8 @@ const UserReviews = ({ darkMode = false, reviews = [] }) => {
     .slice(0, 3);
 
   return (
-    <section className={`py-20 px-4 bg-gray-900 ${text}`}>
-      <div className="max-w-6xl mx-auto text-center mb-10">
+    <section className={`py-20 bg-gray-900 ${text}`}>
+      <div className="max-w-7xl mx-auto text-center mb-10">
         <h2 className="text-4xl font-bold mb-2 text-orange-500">💬 What Our Guests Say</h2>
         <p className={`text-sm text-gray-300`}>Real reviews from real guests</p>
       </div>
@@ -32,7 +32,7 @@ const UserReviews = ({ darkMode = false, reviews = [] }) => {
       {top3Reviews.length === 0 ? (
         <p className={`text-center ${subText}`}>No reviews yet. Be the first to review this hotel!</p>
       ) : (
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <div className="grid md:grid-cols-3 gap-8 max-w-7xl px-4 mx-auto">
           {top3Reviews.map((review, index) => (
             <motion.div
               key={index}

@@ -11,9 +11,16 @@ const Navbar = () => {
   const { user, signOutUser } = useContext(AuthContext);
 
   // Set data-theme attribute for CSS variables
-  useEffect(() => {
-    document.documentElement.setAttribute("data-theme", darkMode ? "dark" : "light");
-  }, [darkMode]);
+useEffect(() => {
+  const storedTheme = localStorage.getItem("theme");
+  if (storedTheme) setDarkMode(storedTheme === "dark");
+}, []);
+
+useEffect(() => {
+  document.documentElement.setAttribute("data-theme", darkMode ? "dark" : "light");
+  localStorage.setItem("theme", darkMode ? "dark" : "light");
+}, [darkMode]);
+
 
   // Scroll effect for navbar background
   useEffect(() => {
@@ -57,7 +64,7 @@ const Navbar = () => {
         scrolled ? (darkMode ? "bg-[#111827cc] shadow-md py-2" : "bg-white/90 shadow-md py-2") : "bg-transparent py-4"
       } ${darkMode ? "text-gray-200" : "text-gray-800"}`}
     >
-      <div className="mx-auto max-w-5xl px-6 flex justify-between items-center transition-all duration-300">
+      <div className="mx-auto max-w-7xl px-4 lg:px- flex justify-between items-center transition-all duration-300">
         <h1 className={`font-bold tracking-wide transition-all duration-300 ${scrolled ? "text-lg" : "text-xl"}`}>
           <Link to="/">HotelEr</Link>
         </h1>

@@ -21,15 +21,15 @@ const Restaurant = ({ darkMode }) => {
   ];
 
   return (
-    <section className={`py-20 px-4 bg-gray-900`}>
-      <div className="max-w-6xl mx-auto text-center mb-10">
+    <section className={`py-20 bg-gray-900`}>
+      <div className="max-w-7xl mx-auto text-center mb-10">
         <h2 className="text-4xl font-bold mb-4 text-white">🍽️ Restaurant & Dining</h2>
         <p className={`text-gray-500 ${darkMode ? 'text-gray-300' : ''}`}>
           Explore our gourmet dishes and cozy dining experience.
         </p>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+      <div className="grid md:grid-cols-3 gap-8 max-w-7xl px-4 mx-auto">
         {dishes.map((dish, idx) => (
           <div key={idx} className="rounded-xl overflow-hidden shadow-md bg-white">
             <img

@@ -4,15 +4,16 @@ import { Link } from 'react-router-dom';
 const Footer = () => {
   return (
     <footer
-      className="text-white pt-24 pb-12 px-6 bg-cover bg-center"
+      className="text-white pt-24 pb-12  bg-cover bg-center"
       style={{
         backgroundImage: "url(https://i.ibb.co/8n5m1fTJ/mountain-house.jpg)",
       }}
     >
       {/* Overlay content */}
-      <div className="bg-black/40 backdrop-blur-sm p-8 md:p-16 rounded-3xl max-w-6xl mx-auto">
+      <div className='mx-auto max-w-7xl px-4'>
+        <div className="bg-black/40 backdrop-blur-sm p-8 rounded-3xl ">
         {/* Footer links */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-8  text-sm">
+        <div className="flex justify-between text-sm">
           <div>
             <h4 className="text-lime-400 font-semibold mb-3">Explore</h4>
             <ul className="space-y-1">
@@ -40,6 +41,7 @@ const Footer = () => {
             </ul>
           </div>
         </div>
+      </div>
       </div>
     </footer>
   );
