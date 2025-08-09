@@ -57,7 +57,7 @@ const SpecialOffers = ({ darkMode }) => {
               <h3 className="text-lg font-semibold mt-3 text-white">Honeymoon Package</h3>
               <p className='text-white'>2 nights, romantic dinner, spa for 2</p>
               <Countdown
-                deadline="2025-07-01T00:00:00"
+                deadline="2025-09-01T00:00:00"
                 onExpire={() => setHoneymoonExpired(true)}
               />
             </div>
@@ -75,7 +75,7 @@ const SpecialOffers = ({ darkMode }) => {
               <h3 className="text-lg font-semibold mt-3 text-white">Summer Group Deal</h3>
               <p className='text-white'>15% off for 4+ guests, includes breakfast</p>
               <Countdown
-                deadline="2025-07-15T00:00:00"
+                deadline="2025-09-20T00:00:00"
                 onExpire={() => setSummerDealExpired(true)}/>
             </div>
           )}

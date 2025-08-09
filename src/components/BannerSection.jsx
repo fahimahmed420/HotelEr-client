@@ -17,7 +17,7 @@ const BannerSection = () => {
   const [index, setIndex] = useState(0);
   const navigate = useNavigate();
 
-  const images = ["Cloud.jpg", "Everest.jpeg", "login-bg.jpg"];
+  const images = ["Everest.jpeg"];
 
   useEffect(() => {
     const observer = new IntersectionObserver(
