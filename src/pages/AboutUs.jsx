@@ -1,105 +1,124 @@
-import React from "react";
+import React, { useContext } from "react";
+import { ThemeContext } from "../utils/ThemeContext";
 
 function AboutUs() {
+  const { darkMode } = useContext(ThemeContext);
+
   return (
-    <div className="bg-gray-100 min-h-screen py-16 px-4">
-      <div className="max-w-5xl mx-auto bg-white shadow-lg rounded-2xl p-8">
-        <h1 className="text-3xl font-bold text-center text-blue-700 mb-6">About HotelEr</h1>
+    <div className={`${darkMode ? "bg-black/80 text-gray-100" : "bg-white text-gray-900"} min-h-screen py-16`}>
+      <div className="max-w-7xl mx-auto px-4 mt-6">
+        <div className={`${darkMode ? "bg-gray-900 shadow-lg" : "bg-white shadow-lg"} rounded-2xl p-8`}>
+          <h1 className={`${darkMode ? "text-blue-400" : "text-blue-700"} text-3xl font-bold text-center mb-6`}>
+            About HotelEr
+          </h1>
 
-        <p className="text-gray-700 text-lg mb-4">
-          <strong>HotelEr</strong> is your trusted platform for booking premium hotel rooms, cozy
-          retreats, and scenic stays across Bangladesh. Whether you're seeking luxury, comfort, or
-          adventure — we make discovering and booking the perfect room simple and secure.
-        </p>
+          <p className="mb-4 text-lg">
+            <strong>HotelEr</strong> is your trusted platform for booking premium hotel rooms, cozy
+            retreats, and scenic stays across Bangladesh. Whether you're seeking luxury, comfort, or
+            adventure — we make discovering and booking the perfect room simple and secure.
+          </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-          <div>
-            <h2 className="text-xl font-semibold text-blue-600 mb-2">Our Mission</h2>
-            <p className="text-gray-700">
-              To simplify hotel booking with a seamless and user-friendly experience. We connect
-              travelers with quality stays, backed by real reviews, transparent pricing, and
-              excellent service.
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <div>
+              <h2 className={`${darkMode ? "text-blue-400" : "text-blue-600"} text-xl font-semibold mb-2`}>
+                Our Mission
+              </h2>
+              <p>
+                To simplify hotel booking with a seamless and user-friendly experience. We connect
+                travelers with quality stays, backed by real reviews, transparent pricing, and
+                excellent service.
+              </p>
+            </div>
+            <div>
+              <h2 className={`${darkMode ? "text-blue-400" : "text-blue-600"} text-xl font-semibold mb-2`}>
+                Why Choose HotelEr?
+              </h2>
+              <ul className="list-disc list-inside space-y-1">
+                <li>Real-time availability and instant booking</li>
+                <li>Authentic guest reviews and ratings</li>
+                <li>Filters by price, facilities, availability, and location</li>
+                <li>Safe payments and dedicated support</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-8">
+            <h2 className={`${darkMode ? "text-blue-400" : "text-blue-600"} text-xl font-semibold mb-2`}>
+              Our Story
+            </h2>
+            <p>
+              HotelEr was founded in <strong>June 2025</strong> with a vision to modernize the hotel
+              booking experience. Built by a team of travel enthusiasts and developers, our goal is to
+              empower travelers to find their perfect stay — with no stress, no hidden fees, and
+              complete control.
             </p>
           </div>
-          <div>
-            <h2 className="text-xl font-semibold text-blue-600 mb-2">Why Choose HotelEr?</h2>
-            <ul className="list-disc list-inside text-gray-700 space-y-1">
-              <li>Real-time availability and instant booking</li>
-              <li>Authentic guest reviews and ratings</li>
-              <li>Filters by price, facilities, availability, and location</li>
-              <li>Safe payments and dedicated support</li>
-            </ul>
-          </div>
-        </div>
 
-        <div className="mt-8">
-          <h2 className="text-xl font-semibold text-blue-600 mb-2">Our Story</h2>
-          <p className="text-gray-700">
-            HotelEr was founded in <strong>June 2025</strong> with a vision to modernize the hotel
-            booking experience. Built by a team of travel enthusiasts and developers, our goal is to
-            empower travelers to find their perfect stay — with no stress, no hidden fees, and
-            complete control.
-          </p>
-        </div>
+          <div className="mt-10 text-center">
+            <h2 className={`${darkMode ? "text-blue-400" : "text-blue-600"} text-xl font-semibold mb-4`}>
+              Meet the Founder
+            </h2>
+            <div className="flex justify-center mb-8">
+              <div className="text-center">
+                <img
+                  src="https://i.ibb.co/SwwR8MqS/animated.gif"
+                  alt="Emperor Cloud"
+                  className="w-28 h-28 rounded-full mx-auto mb-2 border-4 border-blue-500"
+                />
+                <p className="font-bold text-lg">Emperor Cloud</p>
+                <p className="text-sm text-gray-400">Founder & Full Stack Developer</p>
+              </div>
+            </div>
 
-        <div className="mt-10 text-center">
-          <h2 className="text-xl font-semibold text-blue-600 mb-4">Meet the Founder</h2>
-          <div className="flex justify-center mb-8">
-            <div className="text-center">
-              <img
-                src="https://i.ibb.co/SwwR8MqS/animated.gif"
-                alt="Emperor Cloud"
-                className="w-28 h-28 rounded-full mx-auto mb-2 border-4 border-blue-500"
-              />
-              <p className="font-bold text-lg">Emperor Cloud</p>
-              <p className="text-sm text-gray-500">Founder & Full Stack Developer</p>
+            <h2 className={`${darkMode ? "text-blue-400" : "text-blue-600"} text-xl font-semibold mb-4`}>
+              Hotel Management Team
+            </h2>
+            <div className="flex flex-wrap justify-center gap-6">
+              <div className="text-center">
+                <img
+                  src="https://i.pravatar.cc/150?u=manager1"
+                  alt="Team member"
+                  className="w-24 h-24 rounded-full mx-auto mb-2"
+                />
+                <p className="font-semibold">Salman Rahman</p>
+                <p className="text-sm text-gray-400">Operations Manager</p>
+              </div>
+              <div className="text-center">
+                <img
+                  src="https://i.pravatar.cc/150?u=manager2"
+                  alt="Team member"
+                  className="w-24 h-24 rounded-full mx-auto mb-2"
+                />
+                <p className="font-semibold">Mehzabin Chowdhury</p>
+                <p className="text-sm text-gray-400">Customer Experience Lead</p>
+              </div>
+              <div className="text-center">
+                <img
+                  src="https://i.pravatar.cc/150?u=manager3"
+                  alt="Team member"
+                  className="w-24 h-24 rounded-full mx-auto mb-2"
+                />
+                <p className="font-semibold">Tanvir Alam</p>
+                <p className="text-sm text-gray-400">Hotel Partnership Manager</p>
+              </div>
             </div>
           </div>
 
-          <h2 className="text-xl font-semibold text-blue-600 mb-4">Hotel Management Team</h2>
-          <div className="flex flex-wrap justify-center gap-6">
-            <div className="text-center">
-              <img
-                src="https://i.pravatar.cc/150?u=manager1"
-                alt="Team member"
-                className="w-24 h-24 rounded-full mx-auto mb-2"
-              />
-              <p className="font-semibold">Salman Rahman</p>
-              <p className="text-sm text-gray-500">Operations Manager</p>
-            </div>
-            <div className="text-center">
-              <img
-                src="https://i.pravatar.cc/150?u=manager2"
-                alt="Team member"
-                className="w-24 h-24 rounded-full mx-auto mb-2"
-              />
-              <p className="font-semibold">Mehzabin Chowdhury</p>
-              <p className="text-sm text-gray-500">Customer Experience Lead</p>
-            </div>
-            <div className="text-center">
-              <img
-                src="https://i.pravatar.cc/150?u=manager3"
-                alt="Team member"
-                className="w-24 h-24 rounded-full mx-auto mb-2"
-              />
-              <p className="font-semibold">Tanvir Alam</p>
-              <p className="text-sm text-gray-500">Hotel Partnership Manager</p>
-            </div>
+          <div className="mt-12 text-center">
+            <h2 className={`${darkMode ? "text-blue-400" : "text-blue-600"} text-xl font-semibold mb-2`}>
+              Contact Us
+            </h2>
+            <p>
+              Have questions or feedback? Reach out at{" "}
+              <a
+                href="mailto:support@hoteler.com"
+                className="text-blue-500 underline"
+              >
+                support@hoteler.com
+              </a>
+              . We're here to help.
+            </p>
           </div>
-        </div>
-
-        <div className="mt-12 text-center">
-          <h2 className="text-xl font-semibold text-blue-600 mb-2">Contact Us</h2>
-          <p className="text-gray-700">
-            Have questions or feedback? Reach out at{" "}
-            <a
-              href="mailto:support@hoteler.com"
-              className="text-blue-500 underline"
-            >
-              support@hoteler.com
-            </a>
-            . We're here to help.
-          </p>
         </div>
       </div>
     </div>

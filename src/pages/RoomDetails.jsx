@@ -5,17 +5,23 @@ import "react-datepicker/dist/react-datepicker.css";
 import Modal from "react-modal";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-// eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
 import Rating from "react-rating-stars-component";
 import { AuthContext } from "../context/AuthContext";
 import '@fortawesome/fontawesome-free/css/all.min.css';
-
+import { ThemeContext } from "../utils/ThemeContext";
+import SkeletonRoomDetails from "../components/SkeletonRoomDetails";
 
 Modal.setAppElement("#root");
 
+// Skeleton Components
+const SkeletonBlock = ({ className = "" }) => (
+  <div className={`animate-pulse bg-gray-300 dark:bg-gray-700 rounded ${className}`}></div>
+);
+
 function RoomDetails() {
   const { user } = useContext(AuthContext);
+  const { darkMode } = useContext(ThemeContext);
   const { id } = useParams();
 
   const [room, setRoom] = useState(null);
@@ -41,9 +47,6 @@ function RoomDetails() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bookedRanges, setBookedRanges] = useState([]);
   const [isLoadingBookedDates, setIsLoadingBookedDates] = useState(true);
-
-
-
 
   useEffect(() => {
     if (user?.email) {
@@ -86,8 +89,6 @@ function RoomDetails() {
   useEffect(() => {
     fetchBookedDates();
   }, [id]);
-
-
 
   const getDisabledDates = () => {
     const disabled = [];
@@ -189,15 +190,15 @@ function RoomDetails() {
   const taxAmount = baseTotal * taxRate;
   const grandTotal = baseTotal + cleaningFee + taxAmount;
 
-  if (!room) {
-    return <div className="text-center text-white py-20">Loading room details...</div>;
-  }
+  // Skeleton while loading room or reviews
+  if (!room) return <SkeletonRoomDetails />;
 
   return (
-    <div className="min-h-screen bg-cover bg-center text-white" style={{ backgroundImage: `url('${room.gallery?.[0]}')` }}>
-      <div className="min-h-screen grid grid-cols-1 md:grid-cols-3 gap-4 p-6 bg-black/60 py-20">
+    <div className={`${darkMode ? "bg-gray-900 text-gray-200" : "bg-gray-100 text-gray-900"} min-h-screen bg-cover bg-center relative`}>
+      <div className="min-h-screen grid grid-cols-1 md:grid-cols-3 gap-6 p-4 py-28 max-w-7xl mx-auto">
+
         {/* Room Info */}
-        <div className="md:col-span-2 grid md:grid-cols-2 gap-4 rounded-2xl p-4 bg-white/10 backdrop-blur text-white">
+        <div className={`rounded-2xl p-4 ${darkMode ? "bg-gray-800" : "bg-white"} backdrop-blur`}>
           <div className="space-y-2">
             <h2 className="text-2xl font-bold mb-2">{room.hotelName}</h2>
             <p>{room.details}</p>
@@ -205,20 +206,20 @@ function RoomDetails() {
               {room.facilities?.map((f, i) => <li key={i}>• {f}</li>)}
             </ul>
             <div className="grid grid-cols-2 gap-2 pt-4 text-sm">
-              <div><div className="text-gray-300">Altitude</div><div className="font-bold">{room.altitude}</div></div>
-              <div><div className="text-gray-300">Temperature</div><div className="font-bold">{room.temperature}</div></div>
-              <div><div className="text-gray-300">To City</div><div className="font-bold">{room.toNearestCityKm} km</div></div>
-              <div><div className="text-gray-300">Price/night</div><div className="font-bold">${pricePerNight}</div></div>
+              <div><div className="text-gray-400">Altitude</div><div className="font-bold">{room.altitude}</div></div>
+              <div><div className="text-gray-400">Temperature</div><div className="font-bold">{room.temperature}</div></div>
+              <div><div className="text-gray-400">To City</div><div className="font-bold">{room.toNearestCityKm} km</div></div>
+              <div><div className="text-gray-400">Price/night</div><div className="font-bold">${pricePerNight}</div></div>
             </div>
           </div>
         </div>
 
         {/* Booking Panel */}
-        <div className="rounded-2xl p-4 bg-white/10 backdrop-blur space-y-4">
+        <div className={`rounded-2xl p-4 space-y-4 backdrop-blur ${darkMode ? "bg-gray-800" : "bg-white"}`}>
           <h2 className="text-lg font-semibold">Plan Your Stay</h2>
-          <h2 className="text-red-300 font-semibold">Disabled date are already booked</h2>
+          <h2 className="text-red-500 font-semibold">Disabled dates are already booked</h2>
           {isLoadingBookedDates ? (
-            <p className="text-sm text-gray-300">Loading available dates...</p>
+            <p className="text-sm text-gray-400">Loading available dates...</p>
           ) : (
             <DatePicker
               selectsRange
@@ -227,10 +228,12 @@ function RoomDetails() {
               onChange={handleDateChange}
               inline
               minDate={new Date()}
-              excludeDates={getDisabledDates()} />
+              excludeDates={getDisabledDates()}
+              className={`${darkMode ? "bg-gray-800 text-white" : "bg-white text-black"}`}
+            />
           )}
 
-          {error && <p className="text-red-400">{error}</p>}
+          {error && <p className="text-red-500">{error}</p>}
           <div className="flex justify-between items-center text-sm">
             <span>Guests</span>
             <input
@@ -239,57 +242,63 @@ function RoomDetails() {
               max="10"
               value={guests}
               onChange={(e) => setGuests(Math.max(1, parseInt(e.target.value || 1)))}
-              className="w-12 text-black rounded text-center" />
+              className="w-12 rounded text-center"
+              style={{ color: darkMode ? "white" : "black", backgroundColor: darkMode ? "#1f2937" : "white" }}
+            />
           </div>
           <div className="flex justify-between items-center text-sm">
             <span>Check-in Time</span>
             <select
               value={checkInTime}
               onChange={(e) => setCheckInTime(e.target.value)}
-              className="text-black px-2 py-1 rounded">
+              className="px-2 py-1 rounded"
+              style={{ color: darkMode ? "white" : "black", backgroundColor: darkMode ? "#1f2937" : "white" }}
+            >
               {["After 9 AM", "After 12 PM", "After 2 PM", "After 4 PM", "After 6 PM"].map(t => (
                 <option key={t}>{t}</option>
               ))}
             </select>
           </div>
           <button
-            className="w-full py-2 rounded-xl bg-green-600 hover:bg-green-500"
+            className={`w-full py-2 rounded-xl ${darkMode ? "bg-green-600 hover:bg-green-500 text-white" : "bg-green-600 hover:bg-green-500 text-white"}`}
             onClick={handleReserve}
-            disabled={!!error}>
+            disabled={!!error}
+          >
             Reserve
           </button>
         </div>
 
         {/* Gallery */}
-        <div className="md:col-span-3 bg-white/10 p-4 rounded-2xl mt-4">
+        <div className={`${darkMode ? "bg-gray-800" : "bg-white"} p-4 rounded-2xl md:col-span-3`}>
           <h2 className="text-xl font-bold mb-3">Gallery</h2>
-          <div className="flex gap-3 overflow-x-auto">
+          <div className="flex flex-wrap justify-center gap-3">
             {room.gallery?.map((url, i) => (
               <img
                 key={i}
                 src={url}
                 onClick={() => { setModalImage(url); setModalIsOpen(true); }}
                 alt={`Gallery ${i}`}
-                className="w-48 h-36 object-cover rounded-lg hover:scale-105 transition cursor-pointer" />
+                className="w-40 h-32 sm:w-48 sm:h-36 object-cover rounded-lg hover:scale-105 transition cursor-pointer"
+              />
             ))}
           </div>
         </div>
 
         {/* Reviews */}
-        <div className="col-span-3 bg-white/10 p-4 rounded-2xl mt-4">
+        <div className={`${darkMode ? "bg-gray-800" : "bg-white"} p-4 rounded-2xl md:col-span-3`}>
           <h2 className="text-xl font-bold mb-3">User Reviews</h2>
           {reviews.length === 0 ? (
-            <p className="text-sm text-gray-300">No reviews yet.</p>
+            <p className="text-sm text-gray-400">No reviews yet.</p>
           ) : (
-            <div
-              className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
               {reviews.map((r, idx) => (
-                <div key={idx} className="bg-white/20 p-3 rounded-lg">
+                <div key={idx} className={`${darkMode ? "bg-gray-700" : "bg-white/20"} p-3 rounded-lg`}>
                   <div className="flex items-center gap-2 mb-1">
                     <img
                       src={r.avatar || `https://i.pravatar.cc/150?u=${r.email}`}
                       alt="avatar"
-                      className="w-8 h-8 rounded-full flex-shrink-0" />
+                      className="w-8 h-8 rounded-full flex-shrink-0"
+                    />
                     <p className="font-semibold truncate">{r.username}</p>
                   </div>
 
@@ -317,16 +326,16 @@ function RoomDetails() {
                 }
                 setReviewModalOpen(true);
               }}
-              className={`w-full sm:w-auto px-4 py-2 rounded text-white transition ${hasReviewed
-                ? "bg-gray-500 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-500"
-                }`}
+              className={`w-full sm:w-auto px-4 py-2 rounded text-white transition ${
+                hasReviewed
+                  ? "bg-gray-500 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-500"
+              }`}
             >
               {hasReviewed ? "Reviewed" : "Give Review"}
             </button>
           </div>
         </div>
-
 
       </div>
 
@@ -379,7 +388,6 @@ function RoomDetails() {
                 >
                   {isSubmitting ? "Processing..." : "Confirm"}
                 </button>
-
               </div>
             </div>
           </motion.div>
@@ -434,29 +442,19 @@ function RoomDetails() {
                     const res = await fetch("https://hotel-booking-server-side-ruddy.vercel.app/api/reviews", {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({
-                        roomId: id,
-                        username: user?.displayName || user?.email,
-                        email: user?.email,
-                        rating,
-                        comment,
-                        timestamp: new Date(),
-                        avatar: user.photoURL || `https://i.pravatar.cc/150?u=${user.email}`,
-                      }),
+                      body: JSON.stringify(review),
                     });
 
                     if (res.ok) {
-                      toast.success("Review submitted!");
-                      setReviews((prev) => [...prev, review]);
+                      toast.success("Review submitted");
+                      setReviewModalOpen(false);
                       setHasReviewed(true);
+                      setReviews(prev => [review, ...prev]);
                     } else {
-                      toast.error("Already submitted a review.");
+                      toast.error("Failed to submit review");
                     }
-                    setReviewModalOpen(false);
-                    setRating(0);
-                    setComment("");
                   }}
-                  className="bg-blue-600 text-white px-3 py-1 rounded"
+                  className={`bg-blue-600 text-white px-3 py-1 rounded ${(!comment.trim() || isSubmitting) ? "opacity-50 cursor-not-allowed" : ""}`}
                 >
                   Submit
                 </button>
@@ -464,10 +462,9 @@ function RoomDetails() {
             </div>
           </motion.div>
         )}
-
       </AnimatePresence>
 
-      <ToastContainer />
+      <ToastContainer position="bottom-center" theme={darkMode ? "dark" : "light"} />
     </div>
   );
 }

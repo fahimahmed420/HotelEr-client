@@ -2,10 +2,11 @@ import React, { useState, useEffect, useContext } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { Menu, X, Sun, Moon } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
+import { ThemeContext } from "../utils/ThemeContext";
 
 const Navbar = () => {
+  const { darkMode, setDarkMode } = useContext(ThemeContext);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(true);
   const [scrolled, setScrolled] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const { user, signOutUser } = useContext(AuthContext);

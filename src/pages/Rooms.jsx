@@ -1,7 +1,70 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { ThemeContext } from "../utils/ThemeContext";
+
+function SkeletonInput({ darkMode }) {
+  return (
+    <div
+      className={`h-10 rounded-md ${
+        darkMode ? "bg-gray-700" : "bg-gray-300"
+      } animate-pulse w-full sm:w-auto`}
+    ></div>
+  );
+}
+
+function SkeletonButton({ darkMode }) {
+  return (
+    <div
+      className={`h-10 rounded-md ${
+        darkMode ? "bg-blue-600" : "bg-blue-400"
+      } animate-pulse w-full sm:w-auto`}
+    ></div>
+  );
+}
+
+function SkeletonCard({ darkMode }) {
+  return (
+    <div
+      className={`rounded-xl overflow-hidden shadow-md animate-pulse ${
+        darkMode ? "bg-gray-800" : "bg-white"
+      }`}
+    >
+      <div className={`${darkMode ? "bg-gray-700" : "bg-gray-300"} h-48 w-full`}></div>
+      <div className="p-4 space-y-3">
+        <div
+          className={`h-6 rounded w-3/4 ${
+            darkMode ? "bg-gray-600" : "bg-gray-400"
+          }`}
+        ></div>
+        <div
+          className={`h-4 rounded w-full ${
+            darkMode ? "bg-gray-600" : "bg-gray-400"
+          }`}
+        ></div>
+        <div
+          className={`h-4 rounded w-5/6 ${
+            darkMode ? "bg-gray-600" : "bg-gray-400"
+          }`}
+        ></div>
+        <div className="flex justify-between items-center pt-2">
+          <div
+            className={`h-5 rounded w-20 ${
+              darkMode ? "bg-green-600" : "bg-green-400"
+            }`}
+          ></div>
+          <div
+            className={`h-6 rounded w-24 ${
+              darkMode ? "bg-blue-600" : "bg-blue-400"
+            }`}
+          ></div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function Rooms() {
+  const { darkMode } = useContext(ThemeContext);
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [minPrice, setMinPrice] = useState("");
@@ -30,46 +93,95 @@ function Rooms() {
     fetchRooms();
   }, []);
 
-  if (loading) return <div className="text-center text-white py-20"><span className="loading loading-spinner text-error"></span>Loading rooms<span className="loading loading-spinner text-error"></span></div>;
+  if (loading)
+    return (
+      <div
+        className={`min-h-screen py-20 ${
+          darkMode ? "bg-gray-900" : "bg-gray-100"
+        }`}
+      >
+        <h1
+          className={`text-3xl font-bold text-center mb-8 ${
+            darkMode ? "text-gray-200" : "text-gray-900"
+          }`}
+        >
+          Available Rooms
+        </h1>
+
+        {/* Skeleton for Filters */}
+        <div className="max-w-7xl mx-auto mb-6 flex flex-col sm:flex-row items-center gap-4 px-4">
+          <SkeletonInput darkMode={darkMode} />
+          <SkeletonInput darkMode={darkMode} />
+          <SkeletonButton darkMode={darkMode} />
+        </div>
+
+        {/* Skeleton for Room Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto px-4">
+          {[...Array(6)].map((_, i) => (
+            <SkeletonCard key={i} darkMode={darkMode} />
+          ))}
+        </div>
+      </div>
+    );
 
   return (
-    <div className="min-h-screen bg-gray-100 py-20 px-4">
+    <div
+      className={`min-h-screen py-20 ${
+        darkMode ? "bg-gray-900 text-gray-200" : "bg-gray-100 text-gray-900"
+      }`}
+    >
       <h1 className="text-3xl font-bold text-center mb-8">Available Rooms</h1>
 
       {/* Price Range Filter */}
-      <div className="max-w-6xl mx-auto mb-6 flex flex-col sm:flex-row items-center gap-4">
+      <div className="max-w-7xl mx-auto mb-6 flex flex-col sm:flex-row items-center gap-4 px-4">
         <input
           type="number"
           placeholder="Min Price"
           value={minPrice}
           onChange={(e) => setMinPrice(e.target.value)}
-          className="px-3 py-2 border rounded w-full sm:w-auto"
+          className={`px-3 py-2 border rounded w-full sm:w-auto focus:outline-none ${
+            darkMode
+              ? "bg-gray-800 border-gray-600 placeholder-gray-400 text-gray-200 focus:border-blue-500"
+              : "bg-white border-gray-300 placeholder-gray-500 text-gray-900 focus:border-blue-600"
+          }`}
         />
         <input
           type="number"
           placeholder="Max Price"
           value={maxPrice}
           onChange={(e) => setMaxPrice(e.target.value)}
-          className="px-3 py-2 border rounded w-full sm:w-auto"
+          className={`px-3 py-2 border rounded w-full sm:w-auto focus:outline-none ${
+            darkMode
+              ? "bg-gray-800 border-gray-600 placeholder-gray-400 text-gray-200 focus:border-blue-500"
+              : "bg-white border-gray-300 placeholder-gray-500 text-gray-900 focus:border-blue-600"
+          }`}
         />
         <button
           onClick={fetchRooms}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500 w-full sm:w-auto"
+          className={`px-4 py-2 rounded w-full sm:w-auto transition ${
+            darkMode
+              ? "bg-blue-600 text-white hover:bg-blue-700"
+              : "bg-blue-600 text-white hover:bg-blue-500"
+          }`}
         >
           Apply Filter
         </button>
       </div>
 
       {/* Room Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto px-4">
         {rooms.length === 0 ? (
-          <p className="text-center col-span-3 text-gray-500">No rooms match the filter.</p>
+          <p className="text-center col-span-3 text-gray-500">
+            No rooms match the filter.
+          </p>
         ) : (
           rooms.map((room) => (
             <div
               key={room._id}
               onClick={() => navigate(`/roomdetails/${room._id}`)}
-              className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition cursor-pointer"
+              className={`rounded-xl overflow-hidden shadow-md hover:shadow-xl transition cursor-pointer ${
+                darkMode ? "bg-gray-800" : "bg-white"
+              }`}
             >
               <img
                 src={room.gallery?.[0] || "https://via.placeholder.com/400x300"}
@@ -78,9 +190,13 @@ function Rooms() {
               />
               <div className="p-4 space-y-2">
                 <h2 className="text-xl font-bold">{room.hotelName}</h2>
-                <p className="text-sm text-gray-600">{room.details?.slice(0, 100)}...</p>
+                <p className="text-sm text-gray-400">
+                  {room.details?.slice(0, 100)}...
+                </p>
                 <div className="flex justify-between items-center pt-2">
-                  <span className="text-green-600 font-semibold">${room.pricePerNight}/night</span>
+                  <span className="text-green-400 font-semibold">
+                    ${room.pricePerNight}/night
+                  </span>
                   <Link
                     to={`/roomdetails/${room._id}`}
                     className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm"
