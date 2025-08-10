@@ -5,12 +5,16 @@ import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
 import Home from "../pages/Home";
 import ReserveTable from "../pages/ReserveTable";
-import ProfilePage from "../pages/ProfilePage";
 import RoomDetails from "../pages/RoomDetails";
 import Rooms from "../pages/Rooms";
 import MyBookings from "../pages/MyBookings";
 import PrivateRoute from "./PrivateRoute";
 import AboutUs from "../pages/AboutUs";
+
+// New imports for dashboard
+import DashboardLayout from "../layout/DashboardLayout";
+import MyProfile from "../pages/ProfilePage";
+import Security from "../pages/Security";
 
 const router = createBrowserRouter([
   {
@@ -18,14 +22,26 @@ const router = createBrowserRouter([
     element: <MainLayout />,
     children: [
       { path: "/", element: <Home /> },
-      { path: "/Reservation", element: <ReserveTable />},
-      { path: "/profile", element: <PrivateRoute><ProfilePage /></PrivateRoute> },
-      {path:"/rooms", element: <Rooms/>},
-      { path: "/roomdetails/:id", element: <RoomDetails />},
+      { path: "/Reservation", element: <ReserveTable /> },
+      { path: "/rooms", element: <Rooms /> },
+      { path: "/roomdetails/:id", element: <RoomDetails /> },
       { path: "/bookings", element: <PrivateRoute><MyBookings /></PrivateRoute> },
-      { path: "/aboutus", element: <AboutUs /> }
+      { path: "/aboutus", element: <AboutUs /> },
     ],
   },
+  {
+    path: "/dashboard",
+    element: (
+      <PrivateRoute>
+        <DashboardLayout />
+      </PrivateRoute>
+    ),
+    children: [
+      { path: "profile", element: <MyProfile /> },
+      { path: "security", element: <Security /> },
+    ],
+  },
+
   { path: "/login", element: <LoginPage /> },
   { path: "/register", element: <RegisterPage /> },
   { path: "*", element: <ErrorPage /> },

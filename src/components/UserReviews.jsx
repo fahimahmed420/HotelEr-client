@@ -1,6 +1,7 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { FaStar } from 'react-icons/fa';
+import React, { useContext } from "react";
+import { motion } from "framer-motion";
+import { FaStar } from "react-icons/fa";
+import { ThemeContext } from "../utils/ThemeContext";
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
@@ -11,11 +12,13 @@ const fadeInUp = {
   }),
 };
 
-const UserReviews = ({ darkMode = false, reviews = [] }) => {
-  
-  const text = darkMode ? 'text-blue-200' : 'text-black';
-  const cardBg = darkMode ? 'bg-[#1c1c1c]' : 'bg-white';
-  const subText = darkMode ? 'text-blue-300' : 'text-gray-500';
+const UserReviews = ({ reviews = [] }) => {
+  const { darkMode } = useContext(ThemeContext);
+
+  const text = darkMode ? "text-white" : "text-black";
+  const cardBg = darkMode ? "bg-[#1c1c1c]" : "bg-white";
+  const subText = darkMode ? "text-gray-300" : "text-gray-600";
+  const mainBg = darkMode ? "bg-gray-900" : "bg-white";
 
   // Get most recent 3 reviews sorted by timestamp
   const top3Reviews = [...reviews]
@@ -23,14 +26,20 @@ const UserReviews = ({ darkMode = false, reviews = [] }) => {
     .slice(0, 3);
 
   return (
-    <section className={`py-20 bg-gray-900 ${text}`}>
+    <section className={`py-20 transition-colors duration-500 ${mainBg} ${text}`}>
       <div className="max-w-7xl mx-auto text-center mb-10">
-        <h2 className="text-4xl font-bold mb-2 text-orange-500">💬 What Our Guests Say</h2>
-        <p className={`text-sm text-gray-300`}>Real reviews from real guests</p>
+        <h2 className={`text-4xl font-bold mb-2 ${text}`}>
+          💬 What Our Guests Say
+        </h2>
+        <p className={`text-sm ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
+          Real reviews from real guests
+        </p>
       </div>
 
       {top3Reviews.length === 0 ? (
-        <p className={`text-center ${subText}`}>No reviews yet. Be the first to review this hotel!</p>
+        <p className={`text-center ${subText}`}>
+          No reviews yet. Be the first to review this hotel!
+        </p>
       ) : (
         <div className="grid md:grid-cols-3 gap-8 max-w-7xl px-4 mx-auto">
           {top3Reviews.map((review, index) => (
@@ -45,12 +54,12 @@ const UserReviews = ({ darkMode = false, reviews = [] }) => {
             >
               <div className="flex items-center gap-4 mb-4">
                 <img
-                  src={review.avatar || 'https://via.placeholder.com/150'}
-                  alt={review.username || 'Anonymous'}
+                  src={review.avatar || "https://via.placeholder.com/150"}
+                  alt={review.username || "Anonymous"}
                   className="w-12 h-12 rounded-full object-cover"
                 />
                 <div className="text-left">
-                  <h4 className="font-semibold">{review.username || 'Anonymous'}</h4>
+                  <h4 className="font-semibold">{review.username || "Anonymous"}</h4>
                   <div className="flex text-yellow-400">
                     {Array.from({ length: review.rating || 0 }).map((_, i) => (
                       <FaStar key={i} />
@@ -58,9 +67,11 @@ const UserReviews = ({ darkMode = false, reviews = [] }) => {
                   </div>
                 </div>
               </div>
-              <p className={`${subText} text-sm`}>{review.comment || 'No comment provided.'}</p>
+              <p className={`${subText} text-sm`}>{review.comment || "No comment provided."}</p>
               {review.timestamp && (
-                <p className={`text-xs mt-2 ${subText}`}>{new Date(review.timestamp).toLocaleString()}</p>
+                <p className={`text-xs mt-2 ${subText}`}>
+                  {new Date(review.timestamp).toLocaleString()}
+                </p>
               )}
             </motion.div>
           ))}

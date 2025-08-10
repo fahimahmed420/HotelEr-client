@@ -7,6 +7,7 @@ import Amenities from '../components/Amenities';
 import UserReviews from '../components/UserReviews';
 import LocationSection from '../components/LocationSection';
 import OfferPopup from '../components/OfferPopup';
+import HomeSkeleton from '../components/HomeSkeleton';
 
 const Home = () => {
     const [reviews, setReviews] = useState([]);
@@ -36,10 +37,7 @@ const Home = () => {
     }, []);
 
     if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-white">
-                <h1 className="text-4xl font-bold text-gray-700 animate-pulse">Loading…</h1>
-            </div>
+        return (<HomeSkeleton/>
         );
     }
 

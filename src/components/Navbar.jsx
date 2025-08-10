@@ -11,26 +11,22 @@ const Navbar = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const { user, signOutUser } = useContext(AuthContext);
 
-  // Set data-theme attribute for CSS variables
-useEffect(() => {
-  const storedTheme = localStorage.getItem("theme");
-  if (storedTheme) setDarkMode(storedTheme === "dark");
-}, []);
+  useEffect(() => {
+    const storedTheme = localStorage.getItem("theme");
+    if (storedTheme) setDarkMode(storedTheme === "dark");
+  }, [setDarkMode]);
 
-useEffect(() => {
-  document.documentElement.setAttribute("data-theme", darkMode ? "dark" : "light");
-  localStorage.setItem("theme", darkMode ? "dark" : "light");
-}, [darkMode]);
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", darkMode ? "dark" : "light");
+    localStorage.setItem("theme", darkMode ? "dark" : "light");
+  }, [darkMode]);
 
-
-  // Scroll effect for navbar background
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Close dropdown if clicked outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (!e.target.closest(".dropdown-wrapper")) setShowDropdown(false);
@@ -45,19 +41,9 @@ useEffect(() => {
     setMobileOpen(false);
   };
 
-  // Colors for links and buttons depending on darkMode
-  const activeColor = "#3B82F6"; // blue-500
-  const hoverColor = "#93C5FD"; // blue-300
-
-  // Button styles adapt to theme
   const buttonClasses = darkMode
     ? "bg-[#93C5FD] text-gray-900 border border-[#60A5FA] hover:bg-[#60A5FA]"
     : "bg-[#3B82F6] text-white border border-[#2563EB] hover:bg-[#93C5FD] hover:text-gray-900";
-
-  // Common NavLink class builder
-  const navLinkClass = ({ isActive }) =>
-    `text-base font-medium transition-colors duration-200 hover:text-[${hoverColor}] ` +
-    (isActive ? `text-[${activeColor}]` : "text-gray-700");
 
   return (
     <nav
@@ -65,25 +51,53 @@ useEffect(() => {
         scrolled ? (darkMode ? "bg-[#111827cc] shadow-md py-2" : "bg-white/90 shadow-md py-2") : "bg-transparent py-4"
       } ${darkMode ? "text-gray-200" : "text-gray-800"}`}
     >
-      <div className="mx-auto max-w-7xl px-4 lg:px- flex justify-between items-center transition-all duration-300">
+      <div className="mx-auto max-w-7xl px-4 lg:px-6 flex justify-between items-center transition-all duration-300">
         <h1 className={`font-bold tracking-wide transition-all duration-300 ${scrolled ? "text-lg" : "text-xl"}`}>
           <Link to="/">HotelEr</Link>
         </h1>
 
         {/* Desktop Nav Links */}
         <div className="hidden md:flex items-center space-x-6">
-          <NavLink to="/" className={({ isActive }) => `text-base font-medium transition-colors duration-200 hover:text-[#93C5FD] ${isActive ? "text-[#3B82F6]" : darkMode ? "text-gray-200" : "text-gray-700"}`}>
+          <NavLink
+            to="/"
+            className={({ isActive }) =>
+              `text-base font-medium transition-colors duration-200 hover:text-[#93C5FD] ${
+                isActive ? "text-[#3B82F6]" : darkMode ? "text-gray-200" : "text-gray-700"
+              }`
+            }
+          >
             Home
           </NavLink>
-          <NavLink to="/rooms" className={({ isActive }) => `text-base font-medium transition-colors duration-200 hover:text-[#93C5FD] ${isActive ? "text-[#3B82F6]" : darkMode ? "text-gray-200" : "text-gray-700"}`}>
+          <NavLink
+            to="/rooms"
+            className={({ isActive }) =>
+              `text-base font-medium transition-colors duration-200 hover:text-[#93C5FD] ${
+                isActive ? "text-[#3B82F6]" : darkMode ? "text-gray-200" : "text-gray-700"
+              }`
+            }
+          >
             Rooms
           </NavLink>
           {user && (
-            <NavLink to="/bookings" className={({ isActive }) => `text-base font-medium transition-colors duration-200 hover:text-[#93C5FD] ${isActive ? "text-[#3B82F6]" : darkMode ? "text-gray-200" : "text-gray-700"}`}>
+            <NavLink
+              to="/bookings"
+              className={({ isActive }) =>
+                `text-base font-medium transition-colors duration-200 hover:text-[#93C5FD] ${
+                  isActive ? "text-[#3B82F6]" : darkMode ? "text-gray-200" : "text-gray-700"
+                }`
+              }
+            >
               My Bookings
             </NavLink>
           )}
-          <NavLink to="/aboutus" className={({ isActive }) => `text-base font-medium transition-colors duration-200 hover:text-[#93C5FD] ${isActive ? "text-[#3B82F6]" : darkMode ? "text-gray-200" : "text-gray-700"}`}>
+          <NavLink
+            to="/aboutus"
+            className={({ isActive }) =>
+              `text-base font-medium transition-colors duration-200 hover:text-[#93C5FD] ${
+                isActive ? "text-[#3B82F6]" : darkMode ? "text-gray-200" : "text-gray-700"
+              }`
+            }
+          >
             About Us
           </NavLink>
         </div>
@@ -118,9 +132,13 @@ useEffect(() => {
               </button>
 
               {showDropdown && (
-                <div className={`absolute right-0 mt-2 w-40 rounded-md shadow-lg py-2 z-50 cursor-pointer bg-${darkMode ? "[#1F2937]" : "white"} text-${darkMode ? "gray-200" : "gray-800"}`}>
+                <div
+                  className={`absolute right-0 mt-2 w-40 rounded-md shadow-lg py-2 z-50 cursor-pointer ${
+                    darkMode ? "bg-[#1F2937] text-gray-200" : "bg-white text-gray-800"
+                  }`}
+                >
                   <Link
-                    to="/profile"
+                    to="/dashboard/profile"
                     className="block px-4 py-2 text-sm hover:bg-[#93C5FD]/20"
                     onClick={() => setShowDropdown(false)}
                   >
@@ -137,16 +155,17 @@ useEffect(() => {
             </div>
           ) : (
             <Link to="/login">
-              <button
-                className={`hidden md:block px-4 py-1.5 rounded-md transition border ${buttonClasses}`}
-              >
+              <button className={`hidden md:block px-4 py-1.5 rounded-md transition border ${buttonClasses}`}>
                 Login
               </button>
             </Link>
           )}
 
           {/* Mobile Menu Toggle */}
-          <button className={`md:hidden transition ${darkMode ? "text-[#93C5FD]" : "text-[#3B82F6]"}`} onClick={() => setMobileOpen(!mobileOpen)}>
+          <button
+            className={`md:hidden transition ${darkMode ? "text-[#93C5FD]" : "text-[#3B82F6]"}`}
+            onClick={() => setMobileOpen(!mobileOpen)}
+          >
             {mobileOpen ? <X /> : <Menu />}
           </button>
         </div>
@@ -208,7 +227,7 @@ useEffect(() => {
           {user ? (
             <>
               <Link
-                to="/profile"
+                to="/dashboard/profile"
                 onClick={() => setMobileOpen(false)}
                 className="text-base font-medium hover:text-[#93C5FD]"
               >
