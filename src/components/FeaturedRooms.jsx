@@ -33,28 +33,28 @@ export default function FeaturedRooms() {
 
   if (loading) {
     return (
-        <section className="py-20 bg-gray-50 dark:bg-gray-900 transition-colors duration-500">
-      <div className="max-w-7xl px-4 mx-auto">
-        <h2 className="h-12 bg-gray-300 dark:bg-gray-700 rounded w-48 mx-auto mb-12 animate-pulse"></h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-          {[...Array(6)].map((_, i) => (
-            <div
-              key={i}
-              className="rounded-2xl border border-gray-300 dark:border-gray-700 shadow-md 
+      <section className="py-20 bg-gray-50 dark:bg-gray-900 transition-colors duration-500">
+        <div className="max-w-7xl px-4 mx-auto">
+          <h2 className="h-12 bg-gray-300 dark:bg-gray-700 rounded w-48 mx-auto mb-12 animate-pulse"></h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+            {[...Array(6)].map((_, i) => (
+              <div
+                key={i}
+                className="rounded-2xl border border-gray-300 dark:border-gray-700 shadow-md 
                 bg-white dark:bg-gray-800 animate-pulse overflow-hidden"
-            >
-              <div className="w-full h-56 bg-gray-300 dark:bg-gray-700"></div>
-              <div className="p-6 space-y-4">
-                <div className="h-6 bg-gray-300 dark:bg-gray-700 rounded w-3/4"></div>
-                <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-full"></div>
-                <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-5/6"></div>
-                <div className="h-8 bg-indigo-600 rounded-full w-32 mx-auto"></div>
+              >
+                <div className="w-full h-56 bg-gray-300 dark:bg-gray-700"></div>
+                <div className="p-6 space-y-4">
+                  <div className="h-6 bg-gray-300 dark:bg-gray-700 rounded w-3/4"></div>
+                  <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-full"></div>
+                  <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-5/6"></div>
+                  <div className="h-8 bg-indigo-600 rounded-full w-32 mx-auto"></div>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
     );
   }
 
@@ -73,9 +73,8 @@ export default function FeaturedRooms() {
             {rooms.map((room) => (
               <div
                 key={room._id}
-                className={`group rounded-2xl border ${borderClass} shadow-md hover:shadow-lg 
-                  transition overflow-hidden ${cardBgClass} ${textClass}`}
-              >
+                className={`group rounded-2xl border ${borderClass} shadow-md hover:shadow-xl transition-shadow duration-300 ease-in-out transform hover:scale-[1.03] 
+                overflow-hidden ${cardBgClass} ${textClass}`}>
                 <div className="relative overflow-hidden">
                   <img
                     src={

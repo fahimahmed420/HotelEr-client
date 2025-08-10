@@ -23,7 +23,7 @@ export default function MyBookings() {
   const [editBooking, setEditBooking] = useState(null);
   const [newCheckIn, setNewCheckIn] = useState(new Date());
   const [newCheckOut, setNewCheckOut] = useState(new Date());
-  const [cancelBookingId, setCancelBookingId] = useState(null); // NEW
+  const [cancelBookingId, setCancelBookingId] = useState(null);
 
   const { user } = useContext(AuthContext);
   const { darkMode } = useContext(ThemeContext);
