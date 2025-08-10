@@ -57,7 +57,7 @@ const Restaurant = () => {
 
       <div className="text-center mt-8">
         <Link to={"/Reservation"}>
-          <button className="inline-block px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700">
+          <button className="inline-block px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-700">
             Reserve a Table
           </button>
         </Link>

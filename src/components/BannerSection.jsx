@@ -1,38 +1,21 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useContext } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "../styles/datepicker-custom.css";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { ThemeContext } from "../utils/ThemeContext";
 
 const BannerSection = () => {
+  const { darkMode } = useContext(ThemeContext);
   const [checkIn, setCheckIn] = useState(new Date());
   const [checkOut, setCheckOut] = useState(new Date());
   const [guests, setGuests] = useState(2);
   const [bgVisible, setBgVisible] = useState(false);
   const sectionRef = useRef(null);
   const navigate = useNavigate();
-
-  const [theme, setTheme] = useState(
-    document.documentElement.getAttribute("data-theme") || "light"
-  );
-
-  useEffect(() => {
-    const observer = new MutationObserver(() => {
-      const currentTheme =
-        document.documentElement.getAttribute("data-theme") || "light";
-      setTheme(currentTheme);
-    });
-
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["data-theme"],
-    });
-
-    return () => observer.disconnect();
-  }, []);
+  const headingText = darkMode ? "text-gray-100" : "text-white";
 
   const bgImage = "Everest.jpeg";
 
@@ -68,37 +51,6 @@ const BannerSection = () => {
     }
   };
 
-  const backgroundFilter =
-    theme === "dark" ? "brightness(0.55)" : "brightness(0.85)";
-  const textShadow = "0 2px 6px rgba(0,0,0,0.7)";
-  const subTextShadow = "0 1px 4px rgba(0,0,0,0.6)";
-
-  // Reversed button styles:
-  // Light theme: dark gradient background, light text
-  // Dark theme: light gradient background, dark text
-  const buttonStyles = {
-    background:
-      theme === "light"
-        ? "linear-gradient(to right, var(--primary-800), var(--primary-700))"
-        : "linear-gradient(to right, var(--primary-300), var(--primary-200))",
-    color: theme === "light" ? "var(--text-50)" : "var(--text-900)",
-    boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
-    transition: "background 0.3s ease",
-  };
-
-  const handleButtonHover = (e) => {
-    e.currentTarget.style.background =
-      theme === "light"
-        ? "linear-gradient(to right, var(--primary-700), var(--primary-800))"
-        : "linear-gradient(to right, var(--primary-200), var(--primary-300))";
-  };
-  const handleButtonLeave = (e) => {
-    e.currentTarget.style.background =
-      theme === "light"
-        ? "linear-gradient(to right, var(--primary-800), var(--primary-700))"
-        : "linear-gradient(to right, var(--primary-300), var(--primary-200))";
-  };
-
   return (
     <section
       ref={sectionRef}
@@ -111,54 +63,38 @@ const BannerSection = () => {
         style={{
           backgroundImage: bgImage ? `url(${bgImage})` : "none",
           backgroundAttachment: "fixed",
-          filter: backgroundFilter,
+          filter: darkMode ? "brightness(0.55)" : "brightness(0.85)",
         }}
       />
       <div
         className="relative z-10 flex flex-col items-center justify-center text-center max-w-7xl px-4 w-full p-4"
-        style={{ color: `var(--text-50)`, textShadow }}
+        style={{ color: darkMode ? "white" : "black" }}
       >
-        <motion.h1
-          className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight"
-          initial={{ opacity: 0, y: -30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
+        <h1
+          className={`text-3xl sm:text-4xl md:text-5xl font-bold leading-tight ${headingText}`}
         >
           Book Your Dream Hotel With HotelEr
-        </motion.h1>
+        </h1>
 
-        <motion.p
-          className="mt-3 text-sm sm:text-base"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.3 }}
-          style={{ color: `var(--text-100)`, textShadow: subTextShadow }}
+        <p
+          className={`mt-3 text-sm sm:text-base ${headingText}`}
         >
           Find the best rooms and special deals for your next trip.
-        </motion.p>
+        </p>
 
-        <motion.button
+        <button
           onClick={() => navigate("/rooms")}
-          whileHover={{ scale: 1.03 }}
-          style={buttonStyles}
-          onMouseEnter={handleButtonHover}
-          onMouseLeave={handleButtonLeave}
-          className="mt-4 px-6 py-3 rounded-full font-semibold text-sm"
+          className="mt-4 px-6 py-3 rounded-full font-semibold text-sm bg-blue-600 text-white hover:bg-blue-700 transition-colors"
         >
           View All Rooms
-        </motion.button>
+        </button>
 
         {/* Booking Form */}
-        <motion.div
-          className="p-6 rounded-2xl shadow-lg flex flex-wrap gap-4 justify-center items-stretch sm:items-end mt-6"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5, duration: 1 }}
-          style={{
-            backgroundColor:
-              theme === "dark" ? "var(--background-900)" : "white",
-            color: theme === "dark" ? "var(--text-100)" : "black",
-          }}
+        <div
+          className={`p-6 rounded-2xl shadow-lg flex flex-wrap gap-4 justify-center items-stretch sm:items-end mt-6 ${
+            darkMode ? "bg-gray-800" : "bg-white"
+          }`}
+          style={{ color: darkMode ? "white" : "black" }}
         >
           <div className="flex flex-col text-left">
             <label className="font-medium mb-1 text-sm">Check-In</label>
@@ -197,17 +133,13 @@ const BannerSection = () => {
             </select>
           </div>
 
-          <motion.button
+          <button
             onClick={handleCheckAvailability}
-            whileHover={{ scale: 1.03 }}
-            style={buttonStyles}
-            onMouseEnter={handleButtonHover}
-            onMouseLeave={handleButtonLeave}
-            className="mt-auto px-6 py-3 rounded-full font-semibold text-sm"
+            className="mt-auto px-6 py-3 rounded-full font-semibold text-sm bg-blue-600 text-white hover:bg-blue-700 transition-colors"
           >
             CHECK AVAILABILITY
-          </motion.button>
-        </motion.div>
+          </button>
+        </div>
       </div>
       <ToastContainer position="top-center" />
     </section>

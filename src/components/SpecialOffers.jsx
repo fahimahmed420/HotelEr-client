@@ -47,7 +47,7 @@ const SpecialOffers = () => {
         <h2 className={`text-4xl font-bold mb-4 ${headingText}`}>
           🎉 Special Offers
         </h2>
-        <p className={`text-sm ${subText}`}>
+        <p className={` ${subText}`}>
           Grab these deals before time runs out!
         </p>
       </div>

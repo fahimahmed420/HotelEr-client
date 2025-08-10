@@ -31,7 +31,7 @@ const UserReviews = ({ reviews = [] }) => {
         <h2 className={`text-4xl font-bold mb-2 ${text}`}>
           💬 What Our Guests Say
         </h2>
-        <p className={`text-sm ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
+        <p className={`${darkMode ? "text-gray-300" : "text-gray-700"}`}>
           Real reviews from real guests
         </p>
       </div>

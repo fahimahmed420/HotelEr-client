@@ -47,9 +47,8 @@ const Navbar = () => {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 w-full transition-all duration-300 backdrop-blur-md ${
-        scrolled ? (darkMode ? "bg-[#111827cc] shadow-md py-2" : "bg-white/90 shadow-md py-2") : "bg-transparent py-4"
-      } ${darkMode ? "text-gray-200" : "text-gray-800"}`}
+      className={`fixed top-0 left-0 right-0 z-50 w-full transition-all duration-300 backdrop-blur-md ${scrolled ? (darkMode ? "bg-[#111827cc] shadow-md py-2" : "bg-white/90 shadow-md py-2") : "bg-transparent py-4"
+        } ${darkMode ? "text-gray-200" : "text-gray-900"}`}
     >
       <div className="mx-auto max-w-7xl px-4 lg:px-6 flex justify-between items-center transition-all duration-300">
         <h1 className={`font-bold tracking-wide transition-all duration-300 ${scrolled ? "text-lg" : "text-xl"}`}>
@@ -61,8 +60,7 @@ const Navbar = () => {
           <NavLink
             to="/"
             className={({ isActive }) =>
-              `text-base font-medium transition-colors duration-200 hover:text-[#93C5FD] ${
-                isActive ? "text-[#3B82F6]" : darkMode ? "text-gray-200" : "text-gray-700"
+              `text-base font-medium transition-colors duration-200 hover:text-[#93C5FD] ${isActive ? "text-[#3B82F6]" : darkMode ? "text-gray-200" : "text-gray-900"
               }`
             }
           >
@@ -71,8 +69,7 @@ const Navbar = () => {
           <NavLink
             to="/rooms"
             className={({ isActive }) =>
-              `text-base font-medium transition-colors duration-200 hover:text-[#93C5FD] ${
-                isActive ? "text-[#3B82F6]" : darkMode ? "text-gray-200" : "text-gray-700"
+              `text-base font-medium transition-colors duration-200 hover:text-[#93C5FD] ${isActive ? "text-[#3B82F6]" : darkMode ? "text-gray-200" : "text-gray-900"
               }`
             }
           >
@@ -82,8 +79,7 @@ const Navbar = () => {
             <NavLink
               to="/bookings"
               className={({ isActive }) =>
-                `text-base font-medium transition-colors duration-200 hover:text-[#93C5FD] ${
-                  isActive ? "text-[#3B82F6]" : darkMode ? "text-gray-200" : "text-gray-700"
+                `text-base font-medium transition-colors duration-200 hover:text-[#93C5FD] ${isActive ? "text-[#3B82F6]" : darkMode ? "text-gray-200" : "text-gray-900"
                 }`
               }
             >
@@ -93,8 +89,7 @@ const Navbar = () => {
           <NavLink
             to="/aboutus"
             className={({ isActive }) =>
-              `text-base font-medium transition-colors duration-200 hover:text-[#93C5FD] ${
-                isActive ? "text-[#3B82F6]" : darkMode ? "text-gray-200" : "text-gray-700"
+              `text-base font-medium transition-colors duration-200 hover:text-[#93C5FD] ${isActive ? "text-[#3B82F6]" : darkMode ? "text-gray-200" : "text-gray-900"
               }`
             }
           >
@@ -106,9 +101,8 @@ const Navbar = () => {
           {/* Theme Toggle */}
           <button
             onClick={() => setDarkMode(!darkMode)}
-            className={`transition md:mr-2 ${
-              darkMode ? "text-[#93C5FD] hover:text-[#3B82F6]" : "text-[#3B82F6] hover:text-[#93C5FD]"
-            }`}
+            className={`transition md:mr-2 ${darkMode ? "text-[#93C5FD] hover:text-[#3B82F6]" : "text-[#3B82F6] hover:text-[#93C5FD]"
+              }`}
             aria-label="Toggle Dark Mode"
           >
             {darkMode ? <Sun size={20} /> : <Moon size={20} />}
@@ -133,9 +127,8 @@ const Navbar = () => {
 
               {showDropdown && (
                 <div
-                  className={`absolute right-0 mt-2 w-40 rounded-md shadow-lg py-2 z-50 cursor-pointer ${
-                    darkMode ? "bg-[#1F2937] text-gray-200" : "bg-white text-gray-800"
-                  }`}
+                  className={`absolute right-0 mt-2 w-40 rounded-md shadow-lg py-2 z-50 cursor-pointer ${darkMode ? "bg-[#1F2937] text-gray-200" : "bg-white text-gray-800"
+                    }`}
                 >
                   <Link
                     to="/dashboard/profile"
@@ -173,13 +166,16 @@ const Navbar = () => {
 
       {/* Mobile Nav */}
       {mobileOpen && (
-        <div className={`mt-4 flex flex-col space-y-3 md:hidden px-6 ${darkMode ? "bg-[#111827]" : "bg-white"}`}>
+        <div className={`mt-4 flex items-end flex-col space-y-3 md:hidden p-6 ${darkMode
+            ? "bg-[#11182766] backdrop-blur-md"
+            : "bg-white/40 backdrop-blur-md"
+          }`}
+        >
           <NavLink
             to="/"
             onClick={() => setMobileOpen(false)}
             className={({ isActive }) =>
-              `text-base font-medium hover:text-[#93C5FD] ${
-                isActive ? "text-[#3B82F6]" : darkMode ? "text-gray-200" : "text-gray-700"
+              `text-base font-medium hover:text-[#93C5FD] ${isActive ? "text-[#3B82F6]" : darkMode ? "text-gray-200" : "text-gray-900"
               }`
             }
           >
@@ -190,8 +186,7 @@ const Navbar = () => {
             to="/rooms"
             onClick={() => setMobileOpen(false)}
             className={({ isActive }) =>
-              `text-base font-medium hover:text-[#93C5FD] ${
-                isActive ? "text-[#3B82F6]" : darkMode ? "text-gray-200" : "text-gray-700"
+              `text-base font-medium hover:text-[#93C5FD] ${isActive ? "text-[#3B82F6]" : darkMode ? "text-gray-200" : "text-gray-900"
               }`
             }
           >
@@ -203,8 +198,7 @@ const Navbar = () => {
               to="/bookings"
               onClick={() => setMobileOpen(false)}
               className={({ isActive }) =>
-                `text-base font-medium hover:text-[#93C5FD] ${
-                  isActive ? "text-[#3B82F6]" : darkMode ? "text-gray-200" : "text-gray-700"
+                `text-base font-medium hover:text-[#93C5FD] ${isActive ? "text-[#3B82F6]" : darkMode ? "text-gray-200" : "text-gray-900"
                 }`
               }
             >
@@ -216,8 +210,7 @@ const Navbar = () => {
             to="/aboutus"
             onClick={() => setMobileOpen(false)}
             className={({ isActive }) =>
-              `text-base font-medium hover:text-[#93C5FD] ${
-                isActive ? "text-[#3B82F6]" : darkMode ? "text-gray-200" : "text-gray-700"
+              `text-base font-medium hover:text-[#93C5FD] ${isActive ? "text-[#3B82F6]" : darkMode ? "text-gray-200" : "text-gray-900"
               }`
             }
           >
