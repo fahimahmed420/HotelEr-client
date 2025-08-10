@@ -19,7 +19,7 @@ const Countdown = ({ deadline, onExpire }) => {
       setTimeLeft(`${days}d ${hrs}h ${mins}m`);
     }, 1000);
     return () => clearInterval(interval);
-  }, [deadline]);
+  }, [deadline,onExpire]);
 
   return <span className="text-red-600 font-bold">{timeLeft}</span>;
 };

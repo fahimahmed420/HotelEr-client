@@ -15,6 +15,7 @@ import AboutUs from "../pages/AboutUs";
 import DashboardLayout from "../layout/DashboardLayout";
 import MyProfile from "../pages/ProfilePage";
 import Security from "../pages/Security";
+import Contact from "../pages/Contact";
 
 const router = createBrowserRouter([
   {
@@ -27,6 +28,7 @@ const router = createBrowserRouter([
       { path: "/roomdetails/:id", element: <RoomDetails /> },
       { path: "/bookings", element: <PrivateRoute><MyBookings /></PrivateRoute> },
       { path: "/aboutus", element: <AboutUs /> },
+      { path: "/contact", element: <Contact /> },
     ],
   },
   {
