@@ -23,6 +23,7 @@ export default function MyBookings() {
   const [editBooking, setEditBooking] = useState(null);
   const [newCheckIn, setNewCheckIn] = useState(new Date());
   const [newCheckOut, setNewCheckOut] = useState(new Date());
+  const [cancelBookingId, setCancelBookingId] = useState(null); // NEW
 
   const { user } = useContext(AuthContext);
   const { darkMode } = useContext(ThemeContext);
@@ -66,8 +67,6 @@ export default function MyBookings() {
   }, [user]);
 
   const cancelBooking = async (booking) => {
-    if (!window.confirm("Are you sure you want to cancel this booking?")) return;
-
     try {
       const res = await fetch(`${BASE_URL}/api/bookings/${booking._id}`, {
         method: "DELETE",
@@ -142,43 +141,74 @@ export default function MyBookings() {
     }
   };
 
+  // Handle cancel button click: open confirmation modal
+  const handleCancelClick = (booking) => {
+    setCancelBookingId(booking._id);
+  };
+
+  // Confirm cancellation
+  const confirmCancel = () => {
+    const booking = bookings.find((b) => b._id === cancelBookingId);
+    if (booking) {
+      cancelBooking(booking);
+    }
+    setCancelBookingId(null);
+  };
+
+  // Close cancellation modal without action
+  const closeCancelModal = () => {
+    setCancelBookingId(null);
+  };
+
   return (
     <div
-      className={`min-h-screen py-20 ${darkMode ? "bg-gray-900 text-gray-100" : "bg-white text-gray-900"
-        }`}
+      className={`min-h-screen py-20 ${
+        darkMode ? "bg-gray-900 text-gray-100" : "bg-white text-gray-900"
+      }`}
     >
       <div className="max-w-7xl mx-auto px-4">
         {/* Blur background when modal is open */}
-        <div className={editBooking ? "filter blur-sm pointer-events-none" : ""}>
-          <h1 className="text-3xl font-bold text-center">
-            My Bookings
-          </h1>
+        <div
+          className={
+            editBooking || cancelBookingId ? "filter blur-sm pointer-events-none" : ""
+          }
+        >
+          <h1 className="text-3xl font-bold text-center">My Bookings</h1>
 
           {isLoading ? (
             <div className="mt-6 overflow-x-auto">
               <table
-                className={`w-full rounded-lg overflow-hidden border text-left ${darkMode
+                className={`w-full rounded-lg overflow-hidden border text-left ${
+                  darkMode
                     ? "border-gray-700 bg-gray-800 text-gray-100"
                     : "border-gray-300 bg-white text-gray-900"
-                  }`}
+                }`}
               >
                 <thead className={darkMode ? "bg-gray-700" : "bg-gray-100"}>
                   <tr>
-                    {["Room", "Check-In", "Check-Out", "Guests", "Total", "Actions"].map(
-                      (_, idx) => (
-                        <th key={idx} className="p-3">
-                          <SkeletonBlock className="h-5 w-20" />
-                        </th>
-                      )
-                    )}
+                    {[
+                      "Room",
+                      "Check-In",
+                      "Check-Out",
+                      "Guests",
+                      "Total",
+                      "Actions",
+                    ].map((_, idx) => (
+                      <th key={idx} className="p-3">
+                        <SkeletonBlock className="h-5 w-20" />
+                      </th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody>
                   {[...Array(5)].map((_, rowIdx) => (
                     <tr
                       key={rowIdx}
-                      className={`border-t ${darkMode ? "border-gray-700 bg-gray-800" : "border-gray-200 bg-white"
-                        }`}
+                      className={`border-t ${
+                        darkMode
+                          ? "border-gray-700 bg-gray-800"
+                          : "border-gray-200 bg-white"
+                      }`}
                     >
                       <td className="p-3">
                         <SkeletonBlock className="h-6 w-32" />
@@ -196,7 +226,11 @@ export default function MyBookings() {
                         <SkeletonBlock className="h-6 w-16" />
                       </td>
                       <td className="p-3 flex flex-col sm:flex-row gap-2">
-                        <div className={`h-7 w-20 rounded-full animate-pulse ${darkMode ? "bg-blue-600" : "bg-blue-400"}`} />
+                        <div
+                          className={`h-7 w-20 rounded-full animate-pulse ${
+                            darkMode ? "bg-blue-600" : "bg-blue-400"
+                          }`}
+                        />
                         <SkeletonBlock className="h-7 w-20 rounded-full" />
                       </td>
                     </tr>
@@ -211,14 +245,16 @@ export default function MyBookings() {
           ) : (
             <div className="overflow-x-auto mt-4">
               <table
-                className={`w-full rounded-lg overflow-hidden border text-left ${darkMode
+                className={`w-full rounded-lg overflow-hidden border text-left ${
+                  darkMode
                     ? "border-gray-700 bg-gray-800 text-gray-100"
                     : "border-gray-300 bg-white text-gray-900"
-                  }`}
+                }`}
               >
                 <thead
-                  className={`${darkMode ? "bg-gray-700 text-gray-200" : "bg-gray-100 text-gray-700"
-                    }`}
+                  className={`${
+                    darkMode ? "bg-gray-700 text-gray-200" : "bg-gray-100 text-gray-700"
+                  }`}
                 >
                   <tr>
                     <th className="p-3">Room</th>
@@ -242,10 +278,11 @@ export default function MyBookings() {
                     return (
                       <tr
                         key={booking._id}
-                        className={`border-t ${darkMode
+                        className={`border-t ${
+                          darkMode
                             ? "border-gray-700 hover:bg-gray-900 bg-gray-800"
                             : "border-gray-200 hover:bg-gray-300 bg-white"
-                          }`}
+                        }`}
                       >
                         <td className="p-3">{room.hotelName || "Loading…"}</td>
                         <td className="p-3">
@@ -259,31 +296,34 @@ export default function MyBookings() {
                         <td className="p-3 flex flex-col sm:flex-row gap-2">
                           <button
                             onClick={() => openEditModal(booking)}
-                            className={`rounded-full px-3 py-1 text-sm ${darkMode
+                            className={`rounded-full px-3 py-1 text-sm ${
+                              darkMode
                                 ? "bg-blue-700 hover:bg-blue-600 text-white"
                                 : "bg-blue-600 hover:bg-blue-500 text-white"
-                              }`}
+                            }`}
                           >
                             Update Date
                           </button>
                           <button
-                            onClick={() => cancelBooking(booking)}
-                            className={`rounded-full px-3 py-1 text-sm ${isCancelable
+                            onClick={() => handleCancelClick(booking)}
+                            className={`rounded-full px-3 py-1 text-sm ${
+                              isCancelable
                                 ? darkMode
                                   ? "bg-red-700 hover:bg-red-600 text-white"
                                   : "bg-red-600 hover:bg-red-500 text-white"
                                 : darkMode
-                                  ? "bg-gray-600 text-gray-400 cursor-not-allowed"
-                                  : "bg-gray-300 text-gray-600 cursor-not-allowed"
-                              }`}
+                                ? "bg-gray-600 text-gray-400 cursor-not-allowed"
+                                : "bg-gray-300 text-gray-600 cursor-not-allowed"
+                            }`}
                             disabled={!isCancelable}
                           >
                             Cancel
                           </button>
                           {!isCancelable && (
                             <span
-                              className={`text-xs ${darkMode ? "text-gray-400" : "text-gray-500"
-                                }`}
+                              className={`text-xs ${
+                                darkMode ? "text-gray-400" : "text-gray-500"
+                              }`}
                             >
                               Must be 1+ day before check-in.
                             </span>
@@ -298,14 +338,15 @@ export default function MyBookings() {
           )}
         </div>
 
-        {/* Modal */}
+        {/* Update Date Modal */}
         {editBooking && (
           <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm bg-black/20">
             <div
-              className={`rounded-lg p-6 max-w-sm w-full space-y-4 ${darkMode
+              className={`rounded-lg p-6 max-w-sm w-full space-y-4 ${
+                darkMode
                   ? "bg-gray-800 bg-opacity-80 text-gray-100"
                   : "bg-white bg-opacity-80 text-gray-900"
-                } backdrop-filter backdrop-blur-md`}
+              } backdrop-filter backdrop-blur-md`}
             >
               <h3 className="text-xl font-bold">Update Booking Date</h3>
               <div>
@@ -313,10 +354,11 @@ export default function MyBookings() {
                 <DatePicker
                   selected={newCheckIn}
                   onChange={(date) => setNewCheckIn(date)}
-                  className={`border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 w-full ${darkMode
+                  className={`border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 w-full ${
+                    darkMode
                       ? "border-gray-600 focus:border-blue-400 focus:ring-blue-400 bg-gray-900 text-gray-100"
                       : "border-gray-300 focus:border-blue-500 focus:ring-blue-500 bg-white text-gray-900"
-                    }`}
+                  }`}
                 />
               </div>
               <div>
@@ -324,17 +366,19 @@ export default function MyBookings() {
                 <DatePicker
                   selected={newCheckOut}
                   onChange={(date) => setNewCheckOut(date)}
-                  className={`border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 w-full ${darkMode
+                  className={`border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 w-full ${
+                    darkMode
                       ? "border-gray-600 focus:border-blue-400 focus:ring-blue-400 bg-gray-900 text-gray-100"
                       : "border-gray-300 focus:border-blue-500 focus:ring-blue-500 bg-white text-gray-900"
-                    }`}
+                  }`}
                 />
               </div>
               <div className="flex justify-end space-x-3 mt-4">
                 <button
                   onClick={() => setEditBooking(null)}
-                  className={`rounded-full px-3 py-1 hover:bg-gray-400 ${darkMode ? "bg-gray-600 text-gray-200" : "bg-gray-300 text-gray-800"
-                    }`}
+                  className={`rounded-full px-3 py-1 hover:bg-gray-400 ${
+                    darkMode ? "bg-gray-600 text-gray-200" : "bg-gray-300 text-gray-800"
+                  }`}
                 >
                   Cancel
                 </button>
@@ -343,6 +387,38 @@ export default function MyBookings() {
                   className="rounded-full px-3 py-1 bg-green-600 text-white hover:bg-green-500"
                 >
                   Save
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Cancel Confirmation Modal */}
+        {cancelBookingId && (
+          <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm bg-black/20">
+            <div
+              className={`rounded-lg p-6 max-w-sm w-full space-y-4 ${
+                darkMode
+                  ? "bg-gray-800 bg-opacity-80 text-gray-100"
+                  : "bg-white bg-opacity-80 text-gray-900"
+              } backdrop-filter backdrop-blur-md`}
+            >
+              <h3 className="text-xl font-bold">Confirm Cancellation</h3>
+              <p>Are you sure you want to cancel this booking?</p>
+              <div className="flex justify-end space-x-3 mt-4">
+                <button
+                  onClick={closeCancelModal}
+                  className={`rounded-full px-3 py-1 hover:bg-gray-400 ${
+                    darkMode ? "bg-gray-600 text-gray-200" : "bg-gray-300 text-gray-800"
+                  }`}
+                >
+                  No
+                </button>
+                <button
+                  onClick={confirmCancel}
+                  className="rounded-full px-3 py-1 bg-red-600 text-white hover:bg-red-500"
+                >
+                  Yes, Cancel
                 </button>
               </div>
             </div>
