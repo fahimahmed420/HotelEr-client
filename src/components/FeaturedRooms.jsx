@@ -73,8 +73,8 @@ export default function FeaturedRooms() {
             {rooms.map((room) => (
               <div
                 key={room._id}
-                className={`group rounded-2xl border ${borderClass} shadow-md hover:shadow-xl transition-shadow duration-300 ease-in-out transform hover:scale-[1.03] 
-                overflow-hidden ${cardBgClass} ${textClass}`}>
+                className={` shadow-lg hover:shadow-2xl rounded-2xl overflow-hidden transform transition-transform duration-300 hover:scale-105 
+              flex flex-col h-full  ${cardBgClass} ${textClass}`}>
                 <div className="relative overflow-hidden">
                   <img
                     src={

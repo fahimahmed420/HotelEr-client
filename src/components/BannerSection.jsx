@@ -126,7 +126,7 @@ const BannerSection = () => {
               className="border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-300"
             >
               {[1, 2, 3, 4, 5].map((num) => (
-                <option key={num} value={num}>
+                <option className="text-black" key={num} value={num}>
                   {num}
                 </option>
               ))}
